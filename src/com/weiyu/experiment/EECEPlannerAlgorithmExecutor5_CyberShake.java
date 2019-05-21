@@ -343,7 +343,7 @@ public class EECEPlannerAlgorithmExecutor5_CyberShake {
 		Map<Integer, List<CondorVM>> dcToVMs = null;
 		// List<CondorVM> vmList = null;
 		if (null == vmList || vmList.size() == 0) {
-			String vmListPath = "E://实验数据/VM配置_20180601_1000.xls";
+			String vmListPath = "E:/实验数据/VM配置_20180601_1000.xls";
 			vmList = Print.readVMListFromExcel(vmListPath);
 			// for (CondorVM vm : vmList) {
 			// System.out.println(vm.getId() + ":" + vm.getVmm());
