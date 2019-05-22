@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import com.weiyu.experiment.simulation.app.Application;
+import com.weiyu.experiment.simulation.app.CyberShake;
 import com.weiyu.experiment.simulation.app.Montage;
 
 //import gnu.getopt.Getopt;
@@ -42,13 +43,13 @@ public class WorkflowGenerator {
 		// String[] args = { "-a", "Montage", "-n", "40", "-f",
 		// String.valueOf(runtime) };
 		// String[] args = { "-a", "Montage", "-n", "40" };
-		String[] args = { "-a", "Montage", "-n", String.valueOf(taskNumber) };
+		String[] args = { "-a", "CyberShake", "-n", String.valueOf(taskNumber) };
 		String[] newArgs = Arrays.copyOfRange(args, 2, args.length);
 
-		Application app = new Montage();
+		Application app = new CyberShake();
 		app.generateWorkflow(newArgs);
 		String fileName = args[1] + "_"  + taskNumber + "_" + index + "_"  + ".xml";
-		fileName = "F:/Experiment/Montage/" + fileName;
+		fileName = "F:/Experiment/CyberShake/" + fileName;
 		File file = new File(fileName);
 		if(!file.exists()){
 			file.createNewFile();
