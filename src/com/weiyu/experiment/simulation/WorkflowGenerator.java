@@ -6,37 +6,36 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Random;
 
-import com.weiyu.experiment.simulation.app.AppFactory;
 import com.weiyu.experiment.simulation.app.Application;
 import com.weiyu.experiment.simulation.app.Montage;
 
-import gnu.getopt.Getopt;
-import gnu.getopt.LongOpt;
+//import gnu.getopt.Getopt;
+//import gnu.getopt.LongOpt;
 
 /**
  * 生成一定数量的工作流应用
  * 
- * @author Wei Yu
+ * @author HaoYang Yang
  *
  */
 public class WorkflowGenerator {
 
 	public static void main(String[] arg) throws Exception {
-		int[] workflowNumbers = { 20, 40, 60, 80, 100 };
-		int[] taskNumbers = { 20, 40, 60, 80};
-		int[] taskNames = {50, 100, 200, 500};
-		for (int i = 0; i < workflowNumbers.length; i++) {
-			for (int s = 0; s < workflowNumbers[i]; s++)
-				for (int j = 0; j < taskNumbers.length; j++) {
-					for (int k = 0; k < 10; k++) {
-						generateWorkflows(workflowNumbers[i], taskNames[j], s, k);
-					}
-				}
-		}
+
+		int[] taskNumbers = { 25, 50, 100, 150, 200};
+
+//		int[] workflowNumbers = { 20, 40, 60, 80, 100 };
+// 		int[] taskNumbers = { 20, 40, 60, 80};
+//		int[] taskNames = {50, 100, 200, 500};
+
+		for(int taskNumber:taskNumbers)
+			for(int i=0;i<10;i++)
+				generateWorkflows(taskNumber,i);
+
 
 	}
 
-	private static void generateWorkflows(int workflowNumber, int taskNumber, int s, int index)
+	private static void generateWorkflows(int taskNumber, int index)
 			throws Exception, FileNotFoundException {
 		Random random = new Random();
 		double runtime = 3 + random.nextInt(15000) / 1000;
@@ -48,8 +47,8 @@ public class WorkflowGenerator {
 
 		Application app = new Montage();
 		app.generateWorkflow(newArgs);
-		String fileName = args[1] + "_" + workflowNumber + "_" + taskNumber + "_" + index + "_" + s + ".xml";
-		fileName = "E:/实验数据/RandomDAG/" + fileName;
+		String fileName = args[1] + "_"  + taskNumber + "_" + index + "_"  + ".xml";
+		fileName = "F:/Experiment/Montage/" + fileName;
 		File file = new File(fileName);
 		if(!file.exists()){
 			file.createNewFile();
