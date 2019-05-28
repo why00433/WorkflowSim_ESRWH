@@ -5,14 +5,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.weiyu.experiment.ESRWHAlgorithm;
 import org.workflowsim.Task;
+import org.workflowsim.planning.BasePlanningAlgorithm;
 import org.workflowsim.utils.Parameters;
 import com.weiyu.experiment.EECEPlanningAlgorithm;
 import com.weiyu.experiment.domain.TaskRank;
 
 public class UpwardRankMethod extends RankMethod{
 	
-	public UpwardRankMethod(EECEPlanningAlgorithm planner){
+	public UpwardRankMethod(ESRWHAlgorithm planner){
 		super(planner);
 	}
     

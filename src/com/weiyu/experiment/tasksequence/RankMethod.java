@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.weiyu.experiment.ESRWHAlgorithm;
 import org.cloudbus.cloudsim.Host;
 import org.workflowsim.CondorVM;
 import org.workflowsim.FileItem;
 import org.workflowsim.Task;
+import org.workflowsim.planning.BasePlanningAlgorithm;
 import org.workflowsim.utils.Parameters;
 import org.workflowsim.utils.Parameters.FileType;
 
@@ -22,9 +24,9 @@ public abstract class RankMethod {
 	 */
 	protected Map<Task, Double> rank;
 	
-	protected EECEPlanningAlgorithm planner;
+	protected ESRWHAlgorithm planner;
 	
-	public RankMethod(EECEPlanningAlgorithm planner){
+	public RankMethod(ESRWHAlgorithm planner){
 		this.planner = planner;
 		rank = new HashMap<>();
 	}

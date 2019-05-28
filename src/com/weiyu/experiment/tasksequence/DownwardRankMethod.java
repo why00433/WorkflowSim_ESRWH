@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.weiyu.experiment.ESRWHAlgorithm;
 import org.workflowsim.Task;
 import org.workflowsim.utils.Parameters;
 
@@ -13,7 +14,7 @@ import com.weiyu.experiment.domain.TaskRank;
 
 public class DownwardRankMethod extends RankMethod{
 	
-	public DownwardRankMethod(EECEPlanningAlgorithm planner){
+	public DownwardRankMethod(ESRWHAlgorithm planner){
 		super(planner);
 	}
     
