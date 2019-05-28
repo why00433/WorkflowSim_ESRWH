@@ -71,7 +71,8 @@ import com.weiyu.experiment.utils.VMAllocationPolicyImpl;
  * 多数据中心场景下多工作流实例 进行参数校正
  * 1）用VND的算法和不用VND算法、HEFT、基准的变邻域搜索算法之间的进行对比。
  * 2）在不同的截止期情况下进行比较
- * 3）在不同的工作流实例规模的情况下进行比较 4）在不同的任务数量规模性进行比较
+ * 3）在不同的工作流实例规模的情况下进行比较
+ * 4）在不同的任务数量规模性进行比较
  *
  * 编写于2018-06-15
  * @author Wei Yu
@@ -84,7 +85,7 @@ public class EECEPlannerAlgorithmExecutor5_CyberShake {
 		// First step: Initialize the WorkflowSim package.
 		List<String> daxPaths = null;
 //		String prefixPath = "E:/实验数据/RandomDAG/";
-		String prefixPath = "F:/毕业论文!/Experiment";
+		String prefixPath = "F:/Experiment/";
 		int[] workflowNumbers = { 20, 40};
 		int[] taskNumbers = { 50, 100, 200, 500 };
 
@@ -221,7 +222,7 @@ public class EECEPlannerAlgorithmExecutor5_CyberShake {
 	 * @throws IOException
 	 */
 	private static void exportToTxt(List<SimulationResult> results) throws IOException {
-		String filePath = "E:/实验数据/comparision_cybershake_20180621.txt";
+		String filePath = ":/实验数据/comparision_cybershake_20180621.txt";
 		File file = new File(filePath);
 		if (!file.exists()) {
 			file.createNewFile();// 不存在则创建
@@ -343,7 +344,7 @@ public class EECEPlannerAlgorithmExecutor5_CyberShake {
 		Map<Integer, List<CondorVM>> dcToVMs = null;
 		// List<CondorVM> vmList = null;
 		if (null == vmList || vmList.size() == 0) {
-			String vmListPath = "E:/实验数据/VM配置_20180601_1000.xls";
+			String vmListPath = "F:/Experiment/VM_20180601_1000.xls";
 			vmList = Print.readVMListFromExcel(vmListPath);
 			// for (CondorVM vm : vmList) {
 			// System.out.println(vm.getId() + ":" + vm.getVmm());

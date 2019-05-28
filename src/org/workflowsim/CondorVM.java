@@ -57,7 +57,7 @@ public class CondorVM extends Vm {
     private double cost = 0.0;
     
     /**
-     * 虚拟机的功率 (Kw/h)以千瓦每小时为单位来计算 
+     * 物理机的功率 (W)以瓦为单位来计算
      */
     private double power = 0.0;
 
