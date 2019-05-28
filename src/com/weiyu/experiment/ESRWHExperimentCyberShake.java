@@ -90,7 +90,7 @@ public class ESRWHExperimentCyberShake {
 
         // 任务排序方法
         Parameters.RankMethod[] rankMethods = { Parameters.RankMethod.UPWARDRANK, Parameters.RankMethod.DOWNWARDRANK,
-                RankMethod.HybridRank };
+                Parameters.RankMethod.HybridRank };
         // 五个不同等级的松弛时间
         Parameters.DeadlineLevel[] deadlinelevels = { Parameters.DeadlineLevel.D1, Parameters.DeadlineLevel.D2,
                 Parameters.DeadlineLevel.D3, Parameters.DeadlineLevel.D4, Parameters.DeadlineLevel.D5};

@@ -48,15 +48,25 @@ public class Parameters {
 			this.value = value;
 		}
 	}
+
+	public enum ReliabilityLevel{
+	    R1(1),R2(2),R3(3);
+	    public final int value;
+	    private ReliabilityLevel(int value) { this.value = value;}
+    }
 	
 	public enum WorkflowSequeningMethod{
 		EDF, SSF, SWF
 	}
 	
 	public enum RankMethod{
-		UPWARDRANK, DOWNWARDRANK, MERGEDRANK
+		UPWARDRANK, DOWNWARDRANK, MERGEDRANK, HybridRank
 	}
-	
+
+	public enum AllocatingMethod{
+	    VS1, VS2, Random
+    }
+
 	public enum TSTMethod{
 		TST, NOTST
 	}
@@ -81,7 +91,7 @@ public class Parameters {
      * 
      */
     public enum PlanningAlgorithm{
-        INVALID, RANDOM, HEFT, DHEFT,EECE
+        INVALID, RANDOM, HEFT, DHEFT, EECE, ESRWH
     }
     
     /**
@@ -127,10 +137,15 @@ public class Parameters {
     public static final int BASE = 0;
     
     private static RankMethod rankMethod;
+
+    private static AllocatingMethod allocatingMethod;
     
     private static WorkflowSequeningMethod workflowSequeningMethod;
     
     private static DeadlineLevel deadlineLevel;
+
+    private static ReliabilityLevel reliabilityLevel;
+
     /**
      * Scheduling mode
      */
@@ -145,7 +160,8 @@ public class Parameters {
     public static TSTMethod tstMethod;
     
     public static VNDMethod vndMethod;
-    
+
+
     /**
      * Reducer mode
      */
@@ -288,7 +304,13 @@ public class Parameters {
      * 保存数据中心列表
      */
     private static List<WorkflowDatacenter> datacenterList = null;
-    
+
+    /**
+     * 数据中心
+     */
+
+    private static WorkflowDatacenter datacenter = null;
+
     /**
      * 数据中心ID跟数据中心的Host的一一对应关系
      */
@@ -320,6 +342,8 @@ public class Parameters {
     private static List<Double> wstList = null;
     
     private static List<Double> deadlineList = null;
+
+    private static double deadline = 0.0;
     
     private static List<Map<Task, Double>> computationTimesList = null;
     
@@ -730,6 +754,8 @@ public class Parameters {
 		Parameters.wstList = wstList;
 	}
 
+
+
 	public static List<Double> getDeadlineList() {
 		return deadlineList;
 	}
@@ -843,7 +869,15 @@ public class Parameters {
 		Parameters.rankMethod = rankMethod;
 	}
 
-	public static WorkflowSequeningMethod getWorkflowSequeningMethod() {
+    public static AllocatingMethod getAllocatingMethod() {
+        return allocatingMethod;
+    }
+
+    public static void setAllocatingMethod(AllocatingMethod allocatingMethod) {
+        Parameters.allocatingMethod = allocatingMethod;
+    }
+
+    public static WorkflowSequeningMethod getWorkflowSequeningMethod() {
 		return workflowSequeningMethod;
 	}
 
@@ -859,7 +893,15 @@ public class Parameters {
 		Parameters.deadlineLevel = deadlineLevel;
 	}
 
-	public static List<WorkflowDatacenter> getDatacenterList() {
+    public static ReliabilityLevel getReliabilityLevel() {
+        return reliabilityLevel;
+    }
+
+    public static void setReliabilityLevel(ReliabilityLevel reliabilityLevel) {
+        Parameters.reliabilityLevel = reliabilityLevel;
+    }
+
+    public static List<WorkflowDatacenter> getDatacenterList() {
 		return datacenterList;
 	}
 
@@ -890,5 +932,14 @@ public class Parameters {
 	public static void setMaximalDepthList(List<Integer> maximalDepthList) {
 		Parameters.maximalDepthList = maximalDepthList;
 	}
-	
+
+    public static WorkflowDatacenter getDatacenter() {
+        return datacenter;
+    }
+
+    public static void setDatacenter(WorkflowDatacenter datacenter) {
+        Parameters.datacenter = datacenter;
+    }
+
+
 }

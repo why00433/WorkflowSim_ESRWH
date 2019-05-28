@@ -18,6 +18,7 @@ package org.workflowsim;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.weiyu.experiment.ESRWHAlgorithm;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Log;
@@ -210,6 +211,9 @@ public final class WorkflowPlanner extends DatacenterBroker {
                 break;
             case EECE:
                 planner = new EECEPlanningAlgorithm();
+                break;
+            case ESRWH:
+                planner = new ESRWHAlgorithm();
                 break;
             default:
                 planner = null;

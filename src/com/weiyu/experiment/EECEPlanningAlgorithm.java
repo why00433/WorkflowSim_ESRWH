@@ -193,7 +193,7 @@ public class EECEPlanningAlgorithm extends BasePlanningAlgorithm {
 		// Log.printLine("EECE planner running with " + getTaskList().size() + "
 		// tasks.");
 
-		// 第一步：初始化每个工作流应用的deadline
+		// 第一步：计算工作流应用的deadline
 
 		List<Double> deadlineList = null;
 		deadlineList = Parameters.getDeadlineList();
@@ -263,10 +263,11 @@ public class EECEPlanningAlgorithm extends BasePlanningAlgorithm {
 				deadlineList.add(deadline);
 				wstList.add(wst);
 			}
-			// System.out.println("deadline集合的长度：" + deadlineList.size());
+
+
 			Parameters.setDeadlineList(deadlineList);
 			Parameters.setWstList(wstList);
-			// Parameters.setDeadlineRatioList(deadlineRatioList);
+
 
 			Parameters.setComputationTimesList(computationTimesList);
 			// Parameters.setComputationCostsList(computationCostsList);
