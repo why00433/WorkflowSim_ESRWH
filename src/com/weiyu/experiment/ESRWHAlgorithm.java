@@ -1,5 +1,6 @@
 package com.weiyu.experiment;
 
+import com.weiyu.experiment.calculateSL.RHEFT;
 import com.weiyu.experiment.domain.*;
 import com.weiyu.experiment.taskassigning.TaskAssigningUtils;
 import com.weiyu.experiment.tasksequence.DownwardRankMethod;
@@ -25,6 +26,10 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
      */
     private int workflowId;
 
+    /**
+     * 可靠性约束；
+     */
+    private double reliability = 0.0;
 
     /**
      * 每个任务的平均计算时间
@@ -44,6 +49,11 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
      * 任务的upward rank
      */
     private Map<Task, Double> rank = null;
+
+    /**
+     * 任务排序 ---why
+     */
+    private List<TaskRank> ranks = null;
 
     /**
      * 每个VM的调度列表
@@ -143,104 +153,98 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
 
         // Parameters.setSchedulesList(schedules);
 
+        //初始化一些变量,
+        RankMethod rankMethod = null;
+        Double deadline = Parameters.getDeadline();
+        Map<Task, Double> estMap = new HashMap<>();
+        Map<Task, Double> eftMap = new HashMap<>();
 
-        // 第一步：初始化每个工作流应用的deadline
+        List<Task> taskList = Parameters.getTaskList();
+        setTaskList(taskList);
+        setReliability(Parameters.getReliabilityLevel().value);
 
-        List<Double> deadlineList = null;
-        deadlineList = Parameters.getDeadlineList();
-        // 判断如果deadlineList为空，说明Parameters类中还没有保存deadline值，这时需要进行计算
-        if (null == deadlineList || deadlineList.isEmpty()) {
-            deadlineList = new ArrayList<>();
-            List<Double> wstList = new ArrayList<>();
-            // List<List<Task>> workflowList = getWorkflowList();
-            // List<Map<Task, Double>> computationTimesList = new ArrayList<>();
-            // List<Map<Task, Map<CondorVM, Double>>> computationCostsList = new
-            // ArrayList<>();
-            // List<Map<Task, Double>> originalDataTransmissionTimesList = new
-            // ArrayList<>();
-            // List<Map<Task, Map<Task, Double>>>
-            // generatedDataTransmissionTimesList = new ArrayList<>();
 
-            List<Map<Task, Double>> estsForWSTList = new ArrayList<>();
-            List<Map<Task, Double>> eftsForWSTList = new ArrayList<>();
-            List<Double> lastEFTForWSTList = new ArrayList<>();
+        // 计算(1)任务平均执行时间、(2)数据传输时间
+        rankMethod = new UpwardRankMethod(this);
+        computationTimes = new HashMap<>();
+        generatedDataTransmissionTimes = new HashMap<>();
+        lastEFTForWST = 0.0;
 
-            for (int i = 0; i < workflowList.size(); i++) {
-                List<Task> taskList = workflowList.get(i);
-                setTaskList(taskList);
-                // computationCosts = new HashMap<>();
-                computationTimes = new HashMap<>();
-                originalDataTransmissionTimes = new HashMap<>();
-                generatedDataTransmissionTimes = new HashMap<>();
-                estsForWST = new HashMap<>();
-                eftsForWST = new HashMap<>();
-                lastEFTForWST = 0.0;
+        // 计算每个任务在所有虚拟机上的计算成本
+        rankMethod.calculateComputationTime();
+        rankMethod.calculateGeneratedDataTransmissionTime();
 
-                RankMethod rankMethod = new UpwardRankMethod(this);
+//        calculateNormalEFT();
 
-                // 计算每个任务在所有虚拟机上的计算成本
-                rankMethod.calculateComputationTime();
-                rankMethod.calculateGeneratedDataTransmissionTime();
-                rankMethod.calculateOriginalDataTransmissionTime();
+        Parameters.setComputationTimesList(computationTimesList);
+        Parameters.setGeneratedDataTransmissionTimesList(generatedDataTransmissionTimesList);
 
-                // 将每个工作流应用的数据保存在Parameters类中
-                computationTimesList.add(computationTimes);
-                // computationCostsList.add(computationCosts);
-                generatedDataTransmissionTimesList.add(generatedDataTransmissionTimes);
-                originalDataTransmissionTimesList.add(originalDataTransmissionTimes);
 
-                calculateNormalEFT();
-                estsForWSTList.add(estsForWST);
-                eftsForWSTList.add(eftsForWST);
-                lastEFTForWSTList.add(lastEFTForWST);
+        // 算法第一步：任务排序
+        if (Parameters.RankMethod.UPWARDRANK == Parameters.getRankMethod()) {
+            // upward rank的计算方式
+            rankMethod = new UpwardRankMethod(this);
+            ranks = rankMethod.calculateRanks();
+        } else if (Parameters.RankMethod.DOWNWARDRANK == Parameters.getRankMethod()) {
+            // downward rank的计算方式
+            rankMethod = new DownwardRankMethod(this);
+            ranks = rankMethod.calculateRanks();
+        } else if (Parameters.RankMethod.HybridRank == Parameters.getRankMethod()) {
+            // hybrid rank的计算方式
+            ranks = new ArrayList<>();
+            RankMethod upwardRankMethod = new UpwardRankMethod(this);
+            List<TaskRank> upwardRanks = upwardRankMethod.calculateRanks();
+            Map<Task, Double> upwardRankValues = upwardRankMethod.getRank();
 
-                // System.out.println("工作流应用#" + (i + 1) + "的WST为：" +
-                // lastEFTForWST);
+            RankMethod downwardRankMethod = new DownwardRankMethod(this);
+            List<TaskRank> downwardRanks = downwardRankMethod.calculateRanks();
+            Map<Task, Double> downwardRankValues = downwardRankMethod.getRank();
 
-//				double ratio = (double) Parameters.randomWsts.get(i) / 10;
-//				double wst = ratio * lastEFTForWST;
-//				double deadline = lastEFTForWST + wst;
-                // 原始的通过设置不同等级的截止期来设置任务截止时间
-                int sand = Parameters.getDeadlineLevel().value;
-
-                //用CyberShake截止期要设置的宽松一些
-                double ratio = (double) sand / 2;
-
-                //用Montage截止期可以设置稍微紧一些
-//				 double ratio = (double) sand / 10;
-                double wst = ratio * lastEFTForWST;
-                double deadline = lastEFTForWST + wst;
-
-                deadlineList.add(deadline);
-                wstList.add(wst);
+            double lastRankValue = downwardRanks.get(downwardRanks.size() - 1).getRank();
+            for (Task task : taskList) {
+                double rankValue = upwardRankValues.get(task) + lastRankValue - downwardRankValues.get(task);
+                // 降序排列
+                ranks.add(new TaskRank(task, rankValue, 1));
             }
-            // System.out.println("deadline集合的长度：" + deadlineList.size());
-            Parameters.setDeadlineList(deadlineList);
-            Parameters.setWstList(wstList);
-            // Parameters.setDeadlineRatioList(deadlineRatioList);
-
-            Parameters.setComputationTimesList(computationTimesList);
-            // Parameters.setComputationCostsList(computationCostsList);
-            Parameters.setGeneratedDataTransmissionTimesList(generatedDataTransmissionTimesList);
-            Parameters.setOriginalDataTransmissionTimesList(originalDataTransmissionTimesList);
-            Parameters.setEstsForWSTList(estsForWSTList);
-            Parameters.setEftsForWSTList(eftsForWSTList);
-            Parameters.setLastEFTForWSTList(lastEFTForWSTList);
-        } else {
-            computationTimesList = Parameters.getComputationTimesList();
-            generatedDataTransmissionTimesList = Parameters.getGeneratedDataTransmissionTimesList();
-            originalDataTransmissionTimesList = Parameters.getOriginalDataTransmissionTimesList();
+            Collections.sort(ranks);
         }
 
-        // 第二步：对工作流应用进行排序 1）按照应用截止时间排序 2）按照应用松弛时间排序；3）按照应用大小排序
-        List<WorkflowAttribute> returnedWorkflows = null;
-        if (Parameters.WorkflowSequeningMethod.EDF == Parameters.getWorkflowSequeningMethod()) {
-            returnedWorkflows = sortWorkflowsByDeadline(workflowList);
-        } else if (Parameters.WorkflowSequeningMethod.SSF == Parameters.getWorkflowSequeningMethod()) {
-            returnedWorkflows = sortWorkflowsByWst(workflowList);
-        } else if (Parameters.WorkflowSequeningMethod.SWF == Parameters.getWorkflowSequeningMethod()) {
-            returnedWorkflows = sortWorkflowsBySize(workflowList);
-        }
+
+        // 算法第二步：计算最短路径
+        RHEFT rheft = new RHEFT(this);
+        double SL = rheft.calculateSL();
+
+
+        // 算法第二步：初始化工作流应用的deadline
+        // 原始的通过设置不同等级的截止期来设置任务截止时间
+        int sand = Parameters.getDeadlineLevel().value;
+
+        //用CyberShake截止期要设置的宽松一些
+        double ratio = (double) sand / 2;
+
+        //用Montage截止期可以设置稍微紧一些
+//				 double ratio = (double) sand / 10;
+        double wst = ratio * SL;
+        deadline = SL + wst;
+
+        Parameters.setDeadline(deadline);
+
+        // 第三步：进行子截止时间划分
+        Map<Task, Double> subdeadlines = calculateSubdeadlines(ranks, SL);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // 再次重新初始化eftsForWST
         eftsForWST = new HashMap<>();
@@ -250,65 +254,6 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
 
         double elecCostForAllWorkflowsAfterVND = 0.0;
         double elecCostForAllWorkflowsBeforeVND = 0.0;
-        // 分别对每个任务进行调度
-        for (WorkflowAttribute wst : returnedWorkflows) {
-            schedules = new HashMap<>();
-
-            int index = wst.getIndex();
-            setWorkflowId(index);
-            List<Task> taskList = Parameters.getWorkflowList().get(index);
-            setTaskList(taskList);
-
-            // 第三步：进行任务排序：先根据工作流WST的大小对工作流应用进行排序，然后进行任务排序。
-            List<TaskRank> ranks = null;
-            RankMethod rankMethod = null;
-            if (Parameters.RankMethod.UPWARDRANK == Parameters.getRankMethod()) {
-                // upward rank的计算方式
-                rankMethod = new UpwardRankMethod(this);
-                ranks = rankMethod.calculateRanks();
-            } else if (Parameters.RankMethod.DOWNWARDRANK == Parameters.getRankMethod()) {
-                // downward rank的计算方式
-                // List<Map<Task, Double>> computationTimesList2 =
-                // getComputationTimesList();
-                rankMethod = new DownwardRankMethod(this);
-                ranks = rankMethod.calculateRanks();
-            } else if (Parameters.RankMethod.MERGEDRANK == Parameters.getRankMethod()) {
-                // merged rank的计算方式
-                ranks = new ArrayList<>();
-                RankMethod upwardRankMethod = new UpwardRankMethod(this);
-                List<TaskRank> upwardRanks = upwardRankMethod.calculateRanks();
-                Map<Task, Double> upwardRankValues = upwardRankMethod.getRank();
-
-                RankMethod downwardRankMethod = new DownwardRankMethod(this);
-                List<TaskRank> downwardRanks = downwardRankMethod.calculateRanks();
-                Map<Task, Double> downwardRankValues = downwardRankMethod.getRank();
-
-                double lastRankValue = downwardRanks.get(downwardRanks.size() - 1).getRank();
-                for (Task task : taskList) {
-                    double rankValue = upwardRankValues.get(task) + lastRankValue - downwardRankValues.get(task);
-                    // 降序排列
-                    ranks.add(new TaskRank(task, rankValue, 1));
-                }
-                Collections.sort(ranks);
-            }
-
-            // for (TaskRank rank : ranks) {
-            // System.out.println("任务#" + rank.getTask().getCloudletId() +
-            // "---------任务排序：" + rank.getRank());
-            // }
-            // System.out.println("WST值：" + wst.getValue() + " 顺序：" +
-            // wst.getIndex());
-
-            // 第四步：进行子截止时间划分
-            Map<Task, Double> subdeadlines = calculateSubdeadlines(index, ranks);
-            Parameters.getSubdeadlineList().put(index, subdeadlines);
-
-            // System.out.println("=================任务子截止时间================");
-            // for (Task task : getTaskList()) {
-            // System.out.println("任务#" + task.getCloudletId() + "; 子截止时间： " +
-            // subdeadlines.get(task));
-            // }
-            // System.out.println("=================任务子截止时间结束================");
 
             // 第五步：根据生成的初始任务调度序列，对任务进行排序
             double totalElectricityCost = 0.0;
@@ -354,7 +299,7 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
 //		Parameters.elecCostForAllWorkflowsBeforeVND = elecCostForAllWorkflowsBeforeVND;
         Parameters.elecCostForAllWorkflowsAfterVND = elecCostForAllWorkflowsAfterVND;
 
-    }
+
 
     /**
      * 初始化一个调度列表
@@ -761,74 +706,16 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
         return 0;
     }
 
-    /**
-     * 工作工作流应用的大小来排序
-     *
-     * @param workflowList
-     * @return
-     */
-    private List<WorkflowAttribute> sortWorkflowsBySize(List<List<Task>> workflowList) {
-        List<Double> workflowSizeList = Parameters.getWorkflowSizes();
-        List<WorkflowAttribute> workflowSizes = new ArrayList<>();
-        for (int i = 0; i < workflowSizeList.size(); i++) {
-            double size = workflowSizeList.get(i);
-            WorkflowAttribute workflowSize = new WorkflowAttribute(i, size);
-            workflowSizes.add(workflowSize);
-        }
-        Collections.sort(workflowSizes);
-        return workflowSizes;
-    }
 
     /**
-     * 根据工作流应用的松弛时间来排序
-     *
-     * @param workflowList
-     * @return
+     * 设置每个任务的子截止时间，这时候需要假设将任务分配到最快的物理机上去
      */
-    private List<WorkflowAttribute> sortWorkflowsByWst(List<List<Task>> workflowList) {
-        List<Double> wstList = Parameters.getWstList();
-        List<WorkflowAttribute> wsts = new ArrayList<>();
-        for (int i = 0; i < wstList.size(); i++) {
-            double wstItem = wstList.get(i);
-            WorkflowAttribute wst = new WorkflowAttribute(i, wstItem);
-            wsts.add(wst);
-        }
-        Collections.sort(wsts);
-        return wsts;
-    }
-
-    /**
-     * 根据应用截止时间进行排序
-     *
-     * @param workflowList
-     * @return
-     */
-    private List<WorkflowAttribute> sortWorkflowsByDeadline(List<List<Task>> workflowList) {
-        List<Double> deadlineList = Parameters.getDeadlineList();
-        List<WorkflowAttribute> deadlines = new ArrayList<>();
-        for (int i = 0; i < deadlineList.size(); i++) {
-            double deadlineItem = deadlineList.get(i);
-            WorkflowAttribute deadline = new WorkflowAttribute(i, deadlineItem);
-            deadlines.add(deadline);
-        }
-        Collections.sort(deadlines);
-        return deadlines;
-    }
-
-    /**
-     * 设置每个任务的子截止时间，这时候需要假设将任务分配到最快的虚拟机上去了
-     */
-    private Map<Task, Double> calculateSubdeadlines(int index, List<TaskRank> ranks) {
+    private Map<Task, Double> calculateSubdeadlines(List<TaskRank> ranks, double SL) {
         Map<Task, Double> subdeadlines = new HashMap<>();
         // 计算每个任务的最早开始时间、最早完成时间
-        calculateEFTForSubdeadline(index);
-        double deadline = Parameters.getDeadlineList().get(index);
-        // System.out.println("最早完成时间for subdealine：" +
-        // Parameters.getLastEFTForSubdeadlineList().get(index)
-        // + " --Dealine for Subdealine为：" + deadline);
-        // 先计算工作流松弛时间
-        double lastEFTForSubdeadline = Parameters.getLastEFTForSubdeadlineList().get(index);
-        double wst = deadline - lastEFTForSubdeadline;
+        double deadline = Parameters.getDeadline();
+        double DS = deadline - SL;
+        
         double subdealine = 0.0;
         double totalcomputationTime = 0.0;
         Map<Task, Double> computationTimes = computationTimesList.get(index);
@@ -856,118 +743,9 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
         return subdeadlines;
     }
 
-    /**
-     * 工作流中每个任务的最早开始时间、最早完成时间
-     */
-    public Map<Task, Double> calculateNormalEFT() {
-        // Map<Task, Double> eftsForWST = new HashMap<>();
-        // 先给每个任务的最早完成时间初始化为0
-        for (Task task : getTaskList()) {
-            eftsForWST.put(task, 0.0);
-        }
 
-        for (Task task : getTaskList()) {
-            estsForWST.put(task, 0.0);
-        }
 
-        for (Task task : getTaskList()) {
-            double averageComputationCost = 0.0;
-            averageComputationCost = computationTimes.get(task);
 
-            double earliestStartTime = 0.0;
-            double max = 0.0;
-            for (Task parent : task.getParentList()) {
-                // 计算任务的最早开始时间
-                earliestStartTime = eftsForWST.get(parent) + generatedDataTransmissionTimes.get(parent).get(task)
-                        + computationTimes.get(parent);
-                max = Math.max(max, earliestStartTime);
-            }
-
-            estsForWST.put(task, max + originalDataTransmissionTimes.get(task));
-            double initialEarliestFinishTime = estsForWST.get(task) + averageComputationCost;
-
-            if (initialEarliestFinishTime > lastEFTForWST)
-                lastEFTForWST = initialEarliestFinishTime;
-            eftsForWST.put(task, initialEarliestFinishTime);
-        }
-
-        // System.out.println("===========打印每个任务的最早开始时间、最早完成时间==============");
-        // for (Task task : getTaskList()) {
-        // System.out.println(estsForWST.get(task) + " : " +
-        // eftsForWST.get(task));
-        // }
-        // System.out.println("========================打印结束=========================");
-
-        return eftsForWST;
-    }
-
-    /**
-     * 计算子截止时间的最早完成时间
-     *
-     * @param index
-     *
-     * @return
-     */
-    public Map<Task, Double> calculateEFTForSubdeadline(int index) {
-        Map<Task, Map<Task, Double>> generatedDataTransmissionTimes = generatedDataTransmissionTimesList.get(index);
-        Map<Task, Double> originalDataTransmissionTimes = originalDataTransmissionTimesList.get(index);
-        Map<Task, Double> estsForSubdeadline = new HashMap<>();
-        Map<Task, Double> eftsForSubdeadline = new HashMap<>();
-        double lastEFTForSubdeadline = 0.0;
-        // double est = 0.0;
-        // 先给每个任务的最早完成时间初始化为0
-        for (Task task : getTaskList()) {
-            eftsForSubdeadline.put(task, 0.0);
-        }
-
-        // 将每个任务的最早开始时间初始化为0
-        for (Task task : getTaskList()) {
-            estsForSubdeadline.put(task, 0.0);
-        }
-
-        for (Task task : getTaskList()) {
-            double averageComputationCost = 0.0;
-            double fastestSpeed = Parameters.getFastestVM().getMips();
-            averageComputationCost = task.getCloudletLength() / fastestSpeed;
-
-            double earliestStartTime = 0.0;
-            double max = 0.0;
-            for (Task parent : task.getParentList()) {
-                // 计算任务的最早开始时间
-                earliestStartTime = eftsForSubdeadline.get(parent)
-                        + generatedDataTransmissionTimes.get(parent).get(task)
-                        + parent.getCloudletLength() / fastestSpeed;
-                // earliestStartTime = eftsForSubdeadline.get(parent)
-                // +
-                // Parameters.getGeneratedDataTransmissionTimesList().get(index).get(parent).get(task)
-                // + parent.getCloudletLength() / fastestSpeed;
-                max = Math.max(max, earliestStartTime);
-            }
-            // est = max + originalDataTransmissionTimes.get(task);
-
-            estsForSubdeadline.put(task, max + originalDataTransmissionTimes.get(task));
-            // estsForSubdeadline.put(task, max +
-            // Parameters.getOriginalDataTransmissionTimesList().get(index).get(task));
-            double initialEarliestFinishTime = estsForSubdeadline.get(task) + averageComputationCost;
-
-            if (initialEarliestFinishTime > lastEFTForSubdeadline)
-                lastEFTForSubdeadline = initialEarliestFinishTime;
-            eftsForSubdeadline.put(task, initialEarliestFinishTime);
-        }
-
-        Parameters.getEstsForSubdeadlineList().put(index, estsForSubdeadline);
-        Parameters.getEftsForSubdeadlineList().put(index, eftsForSubdeadline);
-        Parameters.getLastEFTForSubdeadlineList().put(index, lastEFTForSubdeadline);
-
-        // System.out.println("===========打印每个任务的最早开始时间、最早完成时间==============");
-        // for (Task task : getTaskList()) {
-        // System.out.println(estsForSubdeadline.get(task) + " : " +
-        // eftsForSubdeadline.get(task));
-        // }
-        // System.out.println("========================打印结束=========================");
-
-        return eftsForSubdeadline;
-    }
 
     /**
      * Finds the best time slot available to minimize the finish time of the
@@ -1152,5 +930,21 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
     public void setGeneratedDataTransmissionTimesList(
             List<Map<Task, Map<Task, Double>>> generatedDataTransmissionTimesList) {
         this.generatedDataTransmissionTimesList = generatedDataTransmissionTimesList;
+    }
+
+    public List<TaskRank> getRanks() {
+        return ranks;
+    }
+
+    public void setRanks(List<TaskRank> ranks) {
+        this.ranks = ranks;
+    }
+
+    public double getReliability() {
+        return reliability;
+    }
+
+    public void setReliability(double reliability) {
+        this.reliability = reliability;
     }
 }

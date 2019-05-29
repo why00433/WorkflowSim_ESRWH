@@ -50,9 +50,9 @@ public class Parameters {
 	}
 
 	public enum ReliabilityLevel{
-	    R1(1),R2(2),R3(3);
-	    public final int value;
-	    private ReliabilityLevel(int value) { this.value = value;}
+	    R1(0.99999),R2(0.999999),R3(0.9999999);
+	    public final double value;
+	    private ReliabilityLevel(double value) { this.value = value;}
     }
 	
 	public enum WorkflowSequeningMethod{
@@ -336,14 +336,14 @@ public class Parameters {
     private static List<Double> workflowSizes = null;
     
     private static List<List<Task>> workflowList = null;
-    
+
+    private static List<Task> taskList = null;
+
     private static List<List<Double>> deadlineRatioList = null;
     
     private static List<Double> wstList = null;
     
     private static List<Double> deadlineList = null;
-
-    private static double deadline = 0.0;
     
     private static List<Map<Task, Double>> computationTimesList = null;
     
@@ -941,5 +941,11 @@ public class Parameters {
         Parameters.datacenter = datacenter;
     }
 
+    public static List<Task> getTaskList() {
+        return taskList;
+    }
 
+    public static void setTaskList(List<Task> taskList) {
+        Parameters.taskList = taskList;
+    }
 }

@@ -87,6 +87,12 @@ public class TaskAssigningUtils {
 	}
 
 	//计算某个任务在哪台计算机上的执行时间
+	public static double calculateComputationTime(Task task, CondorVM vm) {
+		double totalComputationTime = task.getCloudletLength() / (vm.getMips());
+		return totalComputationTime;
+	}
+
+	//计算某个任务在哪台计算机上的执行时间
 	public static double calculateComputationTime(Task task, CondorVM vm, double frequency) {
 		double totalComputationTime = task.getCloudletLength() / (vm.getMips() * frequency);
 		return totalComputationTime;

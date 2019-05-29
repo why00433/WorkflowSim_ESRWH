@@ -59,7 +59,7 @@ public class UpwardRankMethod extends RankMethod{
         double averageComputationCost = 0.0;
         int workflowId = planner.getWorkflowId();
         Map<Task, Double> computationTimes = planner.getComputationTimesList().get(workflowId);
-        Map<Task, Double> originalDataTransmissionTimes = planner.getOriginalDataTransmissionTimesList().get(workflowId);
+//        Map<Task, Double> originalDataTransmissionTimes = planner.getOriginalDataTransmissionTimesList().get(workflowId);
         Map<Task, Map<Task, Double>> generatedDataTransmissionTimes = planner.getGeneratedDataTransmissionTimesList().get(workflowId);
 //        Map<Task, Double> computationTimes = planner.getComputationTimes();
 //        Map<Task, Double> originalDataTransmissionTimes = planner.getOriginalDataTransmissionTimes();
@@ -68,7 +68,7 @@ public class UpwardRankMethod extends RankMethod{
         
         averageComputationCost = computationTimes.get(task);
         
-        double avgOriginalDataTransTime = originalDataTransmissionTimes.get(task);
+//        double avgOriginalDataTransTime = originalDataTransmissionTimes.get(task);
 //        double avgOriginalDataTransTime = Parameters.getOriginalDataTransmissionTimesList().get(workflowId).get(task);
 
         double max = 0.0;
@@ -80,7 +80,7 @@ public class UpwardRankMethod extends RankMethod{
             max = Math.max(max, childCost);
         }
 
-        rank.put(task, averageComputationCost + avgOriginalDataTransTime + max);
+        rank.put(task, averageComputationCost  + max);
 
         return rank.get(task);
     }

@@ -101,13 +101,6 @@ public abstract class RankMethod {
             }
             planner.getGeneratedDataTransmissionTimes().put(task1, taskTransferCosts);
         }
-//        for (Task task1 : taskList) {
-//            taskTransferCosts = new HashMap<>();
-//            for (Task task2 : taskList) {
-//                taskTransferCosts.put(task2, 0.0);
-//            }
-//            planner.getGeneratedDataTransmissionTimes().put(task1, taskTransferCosts);
-//        }
 
         // Calculating the actual values
         for (Task parent : taskList) {
@@ -137,33 +130,31 @@ public abstract class RankMethod {
                         && childFile.getName().equals(parentFile.getName())) {
                 	double childSize = childFile.getSize();
                     int vmLength = vmList.size();
-                    
+
+					//计算GeneratedDatatransmissionTime
+					totalTransmissionTime = (childSize * 8 / Parameters.getBandwidthInDC());
+
+
                     //计算平均的GeneratedDatatransmissionTime，先假设父节点跟子节点被分配在所有的虚拟机资源上
-                    for(int i = 0; i < vmLength;i++) {
-                    	CondorVM vmForParent = vmList.get(i);
-                    	for(int j = 0;j < vmLength;j++){
-                    		CondorVM vmForChild = vmList.get(j);
-                    		if(vmForParent.getHost().getDatacenter().getId() == vmForChild.getHost().getDatacenter().getId()){
-                    		//如果在同一数据中心，则用数据中心内的带宽
-                    			if(vmForParent.getHost().getId() == vmForChild.getHost().getId()){
-                    				//如果在同一物理机，传输时间为0
-                    				totalTransmissionTime += 0;
-                    			}else{
-                    				totalTransmissionTime += (childSize * 8 / Parameters.getBandwidthInDC());
-                    			}
-                    		}else{
-                    		//如果在不同数据中心，则使用不同数据中心之间的带宽
-                    			totalTransmissionTime += (childSize * 8 / Parameters.getBandwidthBetweenDC());
-                    		}
-                    	}
-                    }
+//                    for(int i = 0; i < vmLength;i++) {
+//                    	CondorVM vmForParent = vmList.get(i);
+//                    	for(int j = 0;j < vmLength;j++){
+//                    		CondorVM vmForChild = vmList.get(j);
+//							if(vmForParent.getHost().getId() == vmForChild.getHost().getId()){
+//								//如果在同一物理机，传输时间为0
+//								totalTransmissionTime += 0;
+//							}else{
+//								totalTransmissionTime += (childSize * 8 / Parameters.getBandwidthInDC());
+//							}
+//                    	}
+//                    }
                     break;
                 }
             }
         }
-        avgGeneratedTransTime = totalTransmissionTime / (vmList.size() * vmList.size());
+//        avgGeneratedTransTime = totalTransmissionTime / (vmList.size() * vmList.size());
         // acc in MB, averageBandwidth in Mb/s
-        return avgGeneratedTransTime;
+        return totalTransmissionTime;
     }
     
     

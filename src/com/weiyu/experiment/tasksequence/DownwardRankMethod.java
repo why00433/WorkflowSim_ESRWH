@@ -59,11 +59,11 @@ public class DownwardRankMethod extends RankMethod{
         }
 
         double averageComputationCost = 0.0;
-        double avgOriginalDataTransTime = 0.0;
+//        double avgOriginalDataTransTime = 0.0;
         double avgGeneratedDataTransmissionTimes = 0.0;
         int workflowId = planner.getWorkflowId();
         Map<Task, Double> computationTimes = planner.getComputationTimesList().get(workflowId);
-        Map<Task, Double> originalDataTransmissionTimes = planner.getOriginalDataTransmissionTimesList().get(workflowId);
+//        Map<Task, Double> originalDataTransmissionTimes = planner.getOriginalDataTransmissionTimesList().get(workflowId);
         Map<Task, Map<Task, Double>> generatedDataTransmissionTimes = planner.getGeneratedDataTransmissionTimesList().get(workflowId);
 //        Map<Task, Double> computationTimes = planner.getComputationTimes();
 //        Map<Task, Double> originalDataTransmissionTimes = planner.getOriginalDataTransmissionTimes();
@@ -71,12 +71,12 @@ public class DownwardRankMethod extends RankMethod{
         double max = 0.0;
         for (Task parent : task.getParentList()) {
         	averageComputationCost = computationTimes.get(parent);
-            avgOriginalDataTransTime = originalDataTransmissionTimes.get(parent);
+//            avgOriginalDataTransTime = originalDataTransmissionTimes.get(parent);
             avgGeneratedDataTransmissionTimes = generatedDataTransmissionTimes.get(parent).get(task);
 //            averageComputationCost = Parameters.getComputationTimesList().get(workflowId).get(parent);
 //            avgOriginalDataTransTime = Parameters.getOriginalDataTransmissionTimesList().get(workflowId).get(parent);
 //            avgGeneratedDataTransmissionTimes = Parameters.getGeneratedDataTransmissionTimesList().get(workflowId).get(parent).get(task);
-            double parentCost = averageComputationCost + avgOriginalDataTransTime + avgGeneratedDataTransmissionTimes
+            double parentCost = averageComputationCost  + avgGeneratedDataTransmissionTimes
                     + calculateRank(parent);
             max = Math.max(max, parentCost);
         }
