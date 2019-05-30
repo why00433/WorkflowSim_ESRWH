@@ -326,7 +326,11 @@ public class Parameters {
      * 设置工作流应用截止时间的比例
      */
     private static double deadlineRatio = 0.0;
-    
+
+    /**
+     * 工作流调度总能耗
+     */
+    private static double totalEnergy = 0.0;
     
     
     private static CondorVM fastestVM = null;
@@ -947,5 +951,13 @@ public class Parameters {
 
     public static void setTaskList(List<Task> taskList) {
         Parameters.taskList = taskList;
+    }
+
+    public static double getTotalEnergy() {
+        return totalEnergy;
+    }
+
+    public static void setTotalEnergy(double totalEnergy) {
+        Parameters.totalEnergy = totalEnergy;
     }
 }

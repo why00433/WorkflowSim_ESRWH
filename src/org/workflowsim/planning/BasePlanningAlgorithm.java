@@ -36,7 +36,7 @@ public abstract class BasePlanningAlgorithm implements PlanningAlgorithmInterfac
      * the task list.
      */
     private List<Task> tasktList;
-    
+
     /**
      * 工作流应用列表
      */

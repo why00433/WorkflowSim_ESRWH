@@ -20,6 +20,8 @@ import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
 
+import java.util.List;
+
 /**
  * Condor Vm extends a VM: the difference is it has a locl storage system and it
  * has a state to indicate whether it is busy or not
@@ -60,6 +62,12 @@ public class CondorVM extends Vm {
      * 物理机的功率 (W)以瓦为单位来计算
      */
     private double power = 0.0;
+
+    /**
+     * 物理机的频率列表（归一化方便计算）
+     */
+    private List<Double> frequency = null;
+
 
     /**
      * Creates a new CondorVM object.
@@ -287,8 +295,15 @@ public class CondorVM extends Vm {
 		this.power = power;
 	}
 
+    public List<Double> getFrequency() {
+        return frequency;
+    }
 
-//	@Override
+    public void setFrequency(List<Double> frequency) {
+        this.frequency = frequency;
+    }
+
+    //	@Override
 //	public String toString() {
 //		Host host = getHost();
 //		Datacenter datacenter = host.getDatacenter();

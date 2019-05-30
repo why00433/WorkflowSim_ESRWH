@@ -313,7 +313,7 @@ public class Print {
 
 	
 	public static List<CondorVM> readVMListFromExcel(String filePath) {
-		// String filePath = "E:\\123.xlsx";
+
 
 		// 判断是否为excel类型文件
 		if (!filePath.endsWith(".xls") && !filePath.endsWith(".xlsx")) {

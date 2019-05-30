@@ -15,12 +15,16 @@ import java.util.*;
 public class RHEFT {
 
     protected ESRWHAlgorithm planner;
+    protected Map<Task,Double> eftsForSubdeadline;
 
     public RHEFT(ESRWHAlgorithm planner) {
         this.planner = planner;
     }
 
     public double calculateSL(){
+        //记录EFT,方便下面算子截止期
+        eftsForSubdeadline = new HashMap<>();
+
         List<TaskRank> ranks = planner.getRanks();
 
         //获取物理机列表
@@ -110,7 +114,8 @@ public class RHEFT {
 
             }
 
-        SL = Math.max(AFT.get(task), SL);
+            eftsForSubdeadline.put(task,AFT.get(task));
+            SL = Math.max(AFT.get(task), SL);
 
 
         }
@@ -122,5 +127,7 @@ public class RHEFT {
     }
 
 
-
+    public Map<Task,Double> getEftsForSubdeadline() {
+        return eftsForSubdeadline;
+    }
 }

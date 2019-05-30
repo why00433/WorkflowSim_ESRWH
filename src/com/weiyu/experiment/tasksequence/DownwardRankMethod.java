@@ -1,12 +1,14 @@
 package com.weiyu.experiment.tasksequence;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.weiyu.experiment.ESRWHAlgorithm;
+import com.weiyu.experiment.domain.SortedVM;
+import com.weiyu.experiment.taskassigning.TaskAssigningUtils;
+import org.cloudbus.cloudsim.lists.VmList;
+import org.workflowsim.CondorVM;
 import org.workflowsim.Task;
+import org.workflowsim.WorkflowDatacenter;
 import org.workflowsim.utils.Parameters;
 
 import com.weiyu.experiment.EECEPlanningAlgorithm;
@@ -43,6 +45,16 @@ public class DownwardRankMethod extends RankMethod{
 //		}
 		Collections.sort(downwardRankList);
 		return downwardRankList;
+    }
+
+    private int getDCIndex(WorkflowDatacenter dc) {
+        List<WorkflowDatacenter> dcList = Parameters.getDatacenterList();
+        for (int i = 0; i < dcList.size(); i++) {
+            if (dc.getId() == dcList.get(i).getId()) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     /**

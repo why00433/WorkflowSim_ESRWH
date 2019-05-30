@@ -306,15 +306,11 @@ public class ESRWHCalibration {
          */
         WorkflowEngine wfEngine = wfPlanner.getWorkflowEngine();
         List<CondorVM> vmList = Parameters.getVmList();
-        // Map<Integer, List<CondorVM>> dcToVMs = Parameters.getDcToVMs();
-        Map<Integer, List<CondorVM>> dcToVMs = null;
-        // List<CondorVM> vmList = null;
+
         if (null == vmList || vmList.size() == 0) {
-            String vmListPath = "E:/Experiment/VM_20180601.xls";
+            String vmListPath = "E:/Experiment/VM_20190530.xls";
             vmList = Print.readVMListFromExcel(vmListPath);
-            // for (CondorVM vm : vmList) {
-            // System.out.println(vm.getId() + ":" + vm.getVmm());
-            // }
+
 
             if (null == vmList || vmList.size() == 0) {
                 vmList = createVM(wfEngine.getSchedulerId(0), vmNum);
