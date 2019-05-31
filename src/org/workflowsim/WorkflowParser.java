@@ -136,38 +136,23 @@ public final class WorkflowParser {
     public void parse() {
         if (this.daxPath != null) {
             taskList = parseXmlFile(this.daxPath);
+            Parameters.setTaskList(taskList);
+            setTaskList(taskList);
         } else if (this.daxPaths != null) {
         	List<Task> taskList = null;
-        	List<Double> workflowSizeList = new ArrayList<>();
-        	List<Integer> arriveTimeList = new ArrayList<>();
-        	Random random = new Random();
-        	int workflowSize = daxPaths.size();
-        	
+
+
         	for(int i = 0;i < daxPaths.size();i++){
         		String path = daxPaths.get(i);
-        		randomVMIndex = Parameters.inputDataLocations.get(i);
-//        	}
-//            for (String path : this.daxPaths) {
-            	initialDepth = -1;
                 taskList = parseXmlFile(path);
-                double totalWorkflowSize = 0.0;
-                for(Task task : taskList){
-                	totalWorkflowSize += task.getCloudletLength();
-                }
-                
-                //保存每个工作流应用的大小
-                workflowSizeList.add(totalWorkflowSize);
+            	initialDepth = -1;
                 workflowList.add(taskList);
-                
-                //给每个工作流应用初始化一个到达时间
-                int arriveTime = random.nextInt(workflowSize);
-                arriveTimeList.add(arriveTime);
+                Parameters.setTaskList(taskList);
+                setTaskList(taskList);
             }
             
             //保存每个工作流应用的大小和工作流应用集合
-            Parameters.setWorkflowSizes(workflowSizeList);
             Parameters.setWorkflowList(workflowList);
-            Parameters.setArriveTimeList(arriveTimeList);
         }
     }
 

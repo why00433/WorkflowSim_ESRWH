@@ -215,7 +215,7 @@ public class Print {
 
 		HSSFRow row1 = sheet.createRow(0);
 		// 标题信息
-		String[] titles = { "VM ID", "userId", "mips", "numberOfPes", "ram", "bw", "size", "power", "vmm" };
+		String[] titles = { "VM ID", "userId", "mips", "numberOfPes", "ram", "bw", "size", "maxpower", "vmm" };
 		for (int i = 0; i < 9; i++) {
 			HSSFCell cell1 = row1.createCell(i);
 			cell1.setCellValue(titles[i]);
@@ -247,7 +247,7 @@ public class Print {
 			cell9.setCellValue(condorVM.getVmm());
 		}
 
-		File file = new File("E://实验数据/VM配置_20180601.xls");
+		File file = new File("F:/Experiment/VM_20190530.xls");
 		if (!file.exists()) {
 			file.createNewFile();
 		}
@@ -269,7 +269,7 @@ public class Print {
 
 		HSSFRow row1 = sheet.createRow(0);
 		// 标题信息
-		String[] titles = { "VM ID", "userId", "mips", "numberOfPes", "ram", "bw", "size", "power", "vmm" };
+		String[] titles = { "VM ID", "userId", "mips", "numberOfPes", "ram", "bw", "size", "maxpower", "vmm" };
 		for (int i = 0; i < 9; i++) {
 			HSSFCell cell1 = row1.createCell(i);
 			cell1.setCellValue(titles[i]);

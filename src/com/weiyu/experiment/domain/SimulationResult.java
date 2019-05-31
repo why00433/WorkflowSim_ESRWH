@@ -1,5 +1,7 @@
 package com.weiyu.experiment.domain;
 
+import org.workflowsim.utils.Parameters;
+
 /**
  * 新建一个保存仿真结果的实体类
  * @author Wei Yu
@@ -34,6 +36,10 @@ public class SimulationResult {
 	 * 任务排序方法
 	 */
 	private String rankMethod;
+
+	private  String allocatingMethod;
+
+	private  String reliabilityLevel;
 	
 	/**
 	 * 截止时间的级别
@@ -72,6 +78,13 @@ public class SimulationResult {
 	 * VND之后单个实例对应的RPD值
 	 */
 	private double rpdAfterVND;
+
+	private double rpd;
+
+	/**
+	 * 工作流调度总能耗
+	 */
+	private double totalEnergy;
 	
 	public SimulationResult(){}
 	
@@ -205,25 +218,55 @@ public class SimulationResult {
 		this.vndMethod = vndMethod;
 	}
 
+
+	public String getAllocatingMethod() {
+		return allocatingMethod;
+	}
+
+	public void setAllocatingMethod(String allocatingMethod) {
+		this.allocatingMethod = allocatingMethod;
+	}
+
+	public String getReliabilityLevel() {
+		return reliabilityLevel;
+	}
+
+	public void setReliabilityLevel(String reliabilityLevel) {
+		this.reliabilityLevel = reliabilityLevel;
+	}
+
+	public double getTotalEnergy() {
+		return totalEnergy;
+	}
+
+	public void setTotalEnergy(double totalEnergy) {
+		this.totalEnergy = totalEnergy;
+	}
+
+	public double getRpd() {
+		return rpd;
+	}
+
+	public void setRpd(double rpd) {
+		this.rpd = rpd;
+	}
+
 	@Override
 	public String toString() {
 		return workflowNumber 
 				+ "\t" + taskNumber 
 				+ "\t" + instanceNumber 
-//				+ "\t" + repeatTime 
-				+ "\t" + workflowMethod 
+//				+ "\t" + repeatTime
 				+ "\t" + rankMethod
+				+ "\t" + allocatingMethod
 				+ "\t" + deadlinelevel 
-				+ "\t" + vndMethod 
-				+ "\t" + kmax 
-//				+ "\t" + elecCostForAllWorkflowsBeforeVND 
-				+ "\t" + elecCostForAllWorkflowsAfterVND 
-				+ "\t" + runtime 
-//				+ "\t" + rpdBeforeVND
-				+ "\t" + rpdAfterVND;
+				+ "\t" + reliabilityLevel
+				+ "\t" + totalEnergy
+				+ "\t" + rpd
+				+ "\t" + runtime;
 	}
-	
-	
-	
-	
+
+
+
+
 }

@@ -40,7 +40,7 @@ public class CyberShakeGenerator {
 
         Application app = new CyberShake();
         app.generateWorkflow(newArgs);
-        String fileName = args[1] + "_"  + taskNumber + "_" + index + "_"  + ".xml";
+        String fileName = args[1] + "_"  + taskNumber + "_" + index +  ".xml";
         fileName = "F:/Experiment/CyberShake/" + fileName;
         File file = new File(fileName);
         if(!file.exists()){

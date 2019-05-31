@@ -29,6 +29,8 @@ public abstract class RankMethod {
 	public RankMethod(ESRWHAlgorithm planner){
 		this.planner = planner;
 		rank = new HashMap<>();
+		calculateGeneratedDataTransmissionTime();
+		calculateComputationTime();
 	}
 	
 	/**
@@ -96,10 +98,11 @@ public abstract class RankMethod {
         // Initializing the matrix
     	for (Task task1 : taskList) {
             taskTransferCosts = new HashMap<>();
+
             for (Task task2 : task1.getChildList()) {
                 taskTransferCosts.put(task2, 0.0);
             }
-            planner.getGeneratedDataTransmissionTimes().put(task1, taskTransferCosts);
+			planner.getGeneratedDataTransmissionTimes().put(task1, taskTransferCosts);
         }
 
         // Calculating the actual values

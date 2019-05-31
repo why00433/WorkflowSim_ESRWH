@@ -1,6 +1,7 @@
 package com.weiyu.experiment.calculateSL;
 
 import com.weiyu.experiment.ESRWHAlgorithm;
+import com.weiyu.experiment.domain.Event;
 import com.weiyu.experiment.domain.TaskRank;
 import com.weiyu.experiment.taskassigning.TaskAssigningUtils;
 import org.workflowsim.CondorVM;
@@ -16,6 +17,9 @@ public class RHEFT {
 
     protected ESRWHAlgorithm planner;
     protected Map<Task,Double> eftsForSubdeadline;
+
+    //记录任务分配后的每个物理机所有的运行时间段
+    protected Map<Integer, ArrayList<Task>> allocatedMap = new HashMap<>();
 
     public RHEFT(ESRWHAlgorithm planner) {
         this.planner = planner;
@@ -66,7 +70,7 @@ public class RHEFT {
             Map<Double ,Integer> EFTMap = new TreeMap<>();
 
 
-            //计算可靠性
+            //计算可靠性  
             double lamda = 10e-6;
             double relia = 0.0;
 
@@ -83,7 +87,20 @@ public class RHEFT {
                 double max = 0.0;
                 for(Task parent: task.getParentList()){
                     //Transmission Time
-                    double transmissionTime = TaskAssigningUtils.calculateDataTransmissionTimeBetweenParentAndChild(parent, task, Parameters.getBandwidthInDC());
+                    double transmissionTime = 0.0;
+
+                    //判断parent是不是在这个待分配的物理机上
+                    ArrayList<Task> ll = allocatedMap.get(j);
+                    if(ll == null || ll.isEmpty()){
+                        transmissionTime = TaskAssigningUtils.calculateDataTransmissionTimeBetweenParentAndChild(parent, task, Parameters.getBandwidthInDC());
+                    }
+                    for(Task task1 : ll){
+                        if(task1.equals(parent)){
+                            transmissionTime = 0.0;
+                            break;
+                        }
+                    }
+
                     if(AFT.get(parent) + transmissionTime > max)
                         max = AFT.get(parent) + transmissionTime;
                 }
@@ -106,6 +123,16 @@ public class RHEFT {
                 //分配任务到最小EFT的物理机，更新完成时间
                 AFT.put(task,EFT[i][p]);
                 avail[p] = EFT[i][p];
+
+                if(allocatedMap.get(p) == null || allocatedMap.isEmpty()){
+                    ArrayList<Task> list = new ArrayList<>();
+                    list.add(task);
+                    allocatedMap.put(p, list);
+                }
+                else{
+                    allocatedMap.get(p).add(task);
+                }
+
 
                 relia = 1-(1-relia)*(1-R[i][p]);
 

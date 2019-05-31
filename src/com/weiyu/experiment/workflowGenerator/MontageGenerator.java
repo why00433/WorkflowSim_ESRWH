@@ -40,7 +40,7 @@ public class MontageGenerator {
 
         Application app = new Montage();
         app.generateWorkflow(newArgs);
-        String fileName = args[1] + "_"  + taskNumber + "_" + index + "_"  + ".xml";
+        String fileName = args[1] + "_"  + taskNumber + "_" + index + ".xml";
         fileName = "F:/Experiment/Montage/" + fileName;
         File file = new File(fileName);
         if(!file.exists()){

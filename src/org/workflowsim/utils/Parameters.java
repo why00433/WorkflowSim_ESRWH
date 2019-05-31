@@ -350,6 +350,8 @@ public class Parameters {
     private static List<Double> deadlineList = null;
     
     private static List<Map<Task, Double>> computationTimesList = null;
+
+    private static Map<Task, Double> computationTimes = null;
     
     private static List<Map<Task, Map<CondorVM, Double>>> computationCostsList = null;
     
@@ -397,6 +399,7 @@ public class Parameters {
     	computationTimesList = null;
     	originalDataTransmissionTimesList = null;
     	generatedDataTransmissionTimesList = null;
+
     }
     
     
@@ -959,5 +962,13 @@ public class Parameters {
 
     public static void setTotalEnergy(double totalEnergy) {
         Parameters.totalEnergy = totalEnergy;
+    }
+
+    public static Map<Task, Double> getComputationTimes() {
+        return computationTimes;
+    }
+
+    public static void setComputationTimes(Map<Task, Double> computationTimes) {
+        Parameters.computationTimes = computationTimes;
     }
 }

@@ -20,14 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import javax.jws.soap.SOAPBinding.ParameterStyle;
 
@@ -81,7 +74,7 @@ public class ESRWHCalibration {
 
         // 数据存放路径
         List<String> daxPaths = null;
-        String prefixPath = "F:/Experiment/";
+        String prefixPath = "F:/Experiment/CyberShake/";
 
 //      int[] workflowNumbers = { 20, 40};
         int[] taskNumbers = {25, 50, 100, 150, 200};
@@ -107,7 +100,7 @@ public class ESRWHCalibration {
             for (int k = 0; k < 10; k++) {
                 //实例存放路径
                 daxPaths = new ArrayList<>();
-                String xmlPath = prefixPath + "CyberShake_" + "_" + taskNumbers[i] + "_" + k + "_"+ ".xml";
+                String xmlPath = prefixPath + "CyberShake" + "_" + taskNumbers[i] + "_" + k + ".xml";
                 daxPaths.add(xmlPath);
 
 
@@ -123,12 +116,6 @@ public class ESRWHCalibration {
 
                 Parameters.clear();
 
-                // 给每个工作流应用初始化一个到达时刻
-                Random random = new Random();
-                for (int item = 0; item < daxPaths.size(); item++) {
-                    int timePoint = random.nextInt(Parameters.elecPrices.length);
-                    Parameters.timePoints.add(timePoint);
-                }
 
                 // 给每个工作流应用初始化一个本地数据的存放位置
 //                for (int item = 0; item < daxPaths.size(); item++) {
@@ -158,16 +145,14 @@ public class ESRWHCalibration {
                         // 秒为单位
                         long runtime = (currentTime - beginTime) / 1000;
 //                        result.setWorkflowNumber(workflowNumbers[i]);
-                        result.setTaskNumber(taskNumbers[j]);
+                        result.setTaskNumber(taskNumbers[i]);
                         result.setInstanceNumber(k);
 //						result.setRepeatTime(o);
-                        result.setWorkflowMethod(workflowMethods[1].toString());
-                        result.setRankMethod(rankMethods[2].toString());
-                        result.setDeadlinelevel(deadlinelevels[n].toString());
-                        result.setVndMethod(vndMethods[w].toString());
-                        result.setKmax(kmaxs[1]);
-//						result.setElecCostForAllWorkflowsBeforeVND(Parameters.elecCostForAllWorkflowsBeforeVND);
-                        result.setElecCostForAllWorkflowsAfterVND(Parameters.elecCostForAllWorkflowsAfterVND);
+                        result.setRankMethod(rankMethods[l].toString());
+                        result.setAllocatingMethod(allocatingMethods[m].toString());
+                        result.setDeadlinelevel(deadlinelevels[0].toString());
+                        result.setReliabilityLevel(reliabilityLevels[0].toString());
+                        result.setTotalEnergy(Parameters.getTotalEnergy());
                         result.setRuntime(runtime);
                         results.add(result);
                     }
@@ -192,7 +177,7 @@ public class ESRWHCalibration {
      * @throws IOException
      */
     private static void exportToTxt(List<SimulationResult> results) throws IOException {
-        String filePath = "E:/Experiment/Montage_results_new_20180601.txt";
+        String filePath = "F:/Experiment/Montage_results_20190530.txt";
         File file = new File(filePath);
         if (!file.exists()) {
             file.createNewFile();// 不存在则创建
@@ -215,27 +200,19 @@ public class ESRWHCalibration {
      * @param results
      */
     private static void calculateRPD(List<SimulationResult> results) {
-        double minimalElecCostBeforeVND = Double.MAX_VALUE;
-        // double minimalElecCostAfterVND = Double.MAX_VALUE;
+        double min = Double.MAX_VALUE;
 
         for (SimulationResult result : results) {
-            if (result.getElecCostForAllWorkflowsBeforeVND() < minimalElecCostBeforeVND)
-                minimalElecCostBeforeVND = result.getElecCostForAllWorkflowsBeforeVND();
+            if (result.getTotalEnergy() < min)
+                min = result.getTotalEnergy();
 
-            // if(result.getElecCostForAllWorkflowsAfterVND() <
-            // minimalElecCostAfterVND)
-            // minimalElecCostAfterVND =
-            // result.getElecCostForAllWorkflowsAfterVND();
         }
 
         for (SimulationResult result : results) {
-            double elecCostForAllWorkflowsBeforeVND = result.getElecCostForAllWorkflowsBeforeVND();
-            // double elecCostForAllWorkflowsAfterVND =
-            // result.getElecCostForAllWorkflowsAfterVND();
-            result.setRpdBeforeVND(
-                    (elecCostForAllWorkflowsBeforeVND - minimalElecCostBeforeVND) / minimalElecCostBeforeVND * 100);
-            // result.setRpdAfterVND((elecCostForAllWorkflowsAfterVND -
-            // minimalElecCostAfterVND) / minimalElecCostAfterVND * 100);
+            double totalE = result.getTotalEnergy();
+
+            result.setRpd((totalE - min) / min * 100);
+
         }
     }
 
@@ -243,11 +220,11 @@ public class ESRWHCalibration {
      * 仿真实验的主体函数
      *
      * @param daxPaths
-     * @param workflowMethod
      * @param rankMethod
+     * @param allocatingMethod
      * @param deadlinelevel
-     * @param kmax
-     * @throws Exceptionv
+     * @param reliabilityLevel
+     * @throws Exception
      */
     protected static void doSimulations(List<String> daxPaths, RankMethod rankMethod, Parameters.AllocatingMethod allocatingMethod,
                                         DeadlineLevel deadlinelevel, Parameters.ReliabilityLevel reliabilityLevel) throws Exception {
@@ -258,6 +235,7 @@ public class ESRWHCalibration {
         Parameters.setRankMethod(rankMethod);
         Parameters.setAllocatingMethod(allocatingMethod);
         Parameters.setDeadlineLevel(deadlinelevel);
+        Parameters.setReliabilityLevel(reliabilityLevel);
 
         Parameters.tstMethod = Parameters.TSTMethod.NOTST;
 
@@ -292,10 +270,6 @@ public class ESRWHCalibration {
         CloudSim.init(num_user, calendar, trace_flag);
 
 
-        // 创建数据中心
-        WorkflowDatacenter datacenter = createDatacenter("DC", 1);
-        Parameters.setDatacenter(datacenter);
-
 
         /**
          * Create a WorkflowPlanner with one scheduler.
@@ -308,8 +282,29 @@ public class ESRWHCalibration {
         List<CondorVM> vmList = Parameters.getVmList();
 
         if (null == vmList || vmList.size() == 0) {
-            String vmListPath = "E:/Experiment/VM_20190530.xls";
+            String vmListPath = "F:/Experiment/VM_20190530.xls";
             vmList = Print.readVMListFromExcel(vmListPath);
+
+            if (null != vmList && vmList.size() != 0){
+                for(CondorVM vm : vmList){
+                    Double frequency1[] = {1.0, 1.8/2.0, 1.6/2.0, 1.4/2.0, 1.2/2.0, 1.0/2.0, 0.8/2.0};
+                    Double frequency2[] = {1.0, 1.6/1.8 ,1.4/1.8, 1.2/1.8, 1.0/1.8, 0.8/1.8};
+                    Double frequency3[] = {1.0, 2.4/2.6, 2.2/2.6, 2.0/2.6, 1.8/2.6, 1.0/2.6};
+
+                    List<List<Double>> frequencyList = new ArrayList<>();
+                    frequencyList.add(Arrays.asList(frequency1));
+                    frequencyList.add(Arrays.asList(frequency2));
+                    frequencyList.add(Arrays.asList(frequency3));
+
+                    if(vm.getPower() == 62.0)
+                        vm.setFrequency(frequencyList.get(0));
+                    else if(vm.getPower() == 25.0)
+                        vm.setFrequency(frequencyList.get(1));
+                    else
+                        vm.setFrequency(frequencyList.get(2));
+
+                }
+            }
 
 
             if (null == vmList || vmList.size() == 0) {
@@ -323,33 +318,13 @@ public class ESRWHCalibration {
          */
         wfEngine.submitVmList(vmList, 0);
 
-        // 将其保存在Parameters中
-        // Parameters.setVmList(vmList);
-        //wfEngine.submitVmList(vmlist1, 0);
-        // 创建一个绑定函数将虚拟机跟数据中心中的Host绑定起来
-//        dcToVMs = VMAllocationPolicyImpl.bindVMToDatacenter(dcList, vmList);
-
-//        保存数据中心ID跟该数据中心中部署的虚拟机的一一对应关系
-//        Parameters.setDcToVMs(dcToVMs);
 
         /**
          * 绑定数据中心
          */
         wfEngine.bindSchedulerDatacenter(1, 0);
-        wfEngine.submitDatacenters(datacenter, 0);
 
 
-
-        // 将数据中心中的虚拟机按照性能能耗比排好序
-
-        List<SortedVM> sortedVMs = new ArrayList<>();
-        // 第一种：先根据能量优化的方式来排序
-        for (CondorVM vm : vmList) {
-            double ppW = vm.getPower() / vm.getMips() ;
-            SortedVM sortedVM = new SortedVM(vm, ppW);
-            sortedVMs.add(sortedVM);
-        }
-        Collections.sort(sortedVMs);
 
         // 设置一个统一的数据中心内的PM进行传输的带宽
         double interBandwidth = 1.0e7;
@@ -361,102 +336,6 @@ public class ESRWHCalibration {
     }
 
 
-
-    private static WorkflowDatacenter createDatacenter(String name, int index) {
-        // Here are the steps needed to create a PowerDatacenter:
-        // 第一步：先创建CPU核的数量We need to create a list to store one or more
-        // Machines
-        List<Host> hostList = new ArrayList<>();
-
-        // 第二步：创建主机Host，每个数据中心假设由1-10个主机
-        int hostNumber = 0;
-        // Random random = new Random();
-        hostNumber = Parameters.hostNumberList[index];
-        // hostNumber = 1 + random.nextInt(200);
-        for (int i = 1; i <= hostNumber; i++) {
-            List<Pe> peList = new ArrayList<>();
-
-            // 由于是异构的，主机的处理速度也是不一样的，因此以0-1之内的随机数来生成随机的速度
-            int mips = 2000;
-            // random = new Random();
-            // int ratio = 1 + random.nextInt(5);
-            int ratio = 1 + i % 5;
-
-            mips = mips * ratio / 5;
-            // System.out.println("主机ID：" + i + "- 处理速度：" + mips);
-            // 3. Create PEs and add these into the list.
-            // for a quad-core machine, a list of 4 PEs is required:
-            if (ratio % 2 == 0) {
-                for (int j = 0; j < 8; j++) {
-                    peList.add(new Pe(j, new PeProvisionerSimple(mips)));
-                }
-            } else {
-                for (int j = 0; j < 4; j++) {
-                    peList.add(new Pe(j, new PeProvisionerSimple(mips)));
-                }
-            }
-
-            int ram = 8192; // host memory (MB)
-            long storage = 500000; // host storage
-            int bw = 10000;
-            Host host = new Host(i, new RamProvisionerSimple(ram), new BwProvisionerSimple(bw), storage, peList,
-                    new VmSchedulerTimeShared(peList));
-            hostList.add(host); // This is our first machine
-        }
-
-        // 5. Create a DatacenterCharacteristics object that stores the
-        // properties of a data center: architecture, OS, list of
-        // Machines, allocation policy: time- or space-shared, time zone
-        // and its price (G$/Pe time unit).
-        String arch = "x86"; // system architecture
-        String os = "Linux"; // operating system
-        String vmm = "Xen";
-        double time_zone = 10.0; // time zone this resource located
-        double cost = 3.0; // the cost of using processing in this resource
-        double costPerMem = 0.05; // the cost of using memory in this resource
-        double costPerStorage = 0.1; // the cost of using storage in this
-        // resource
-        double costPerBw = 0.1; // the cost of using bw in this resource
-        LinkedList<Storage> storageList = new LinkedList<>(); // we are not
-        // adding SAN
-        // devices by
-        // now
-        WorkflowDatacenter datacenter = null;
-        DatacenterCharacteristics characteristics = new DatacenterCharacteristics(arch, os, vmm, hostList, time_zone,
-                cost, costPerMem, costPerStorage, costPerBw);
-
-        // 6. Finally, we need to create a cluster storage object.
-        /**
-         * The bandwidth within a data center.
-         */
-        // double intraBandwidth = 1.5e7;
-
-        /**
-         * The bandwidth between data centers.
-         */
-        // double interBandwidth = intraBandwidth * 10;// the number comes from
-        // the futuregrid site, you can specify your bw
-        try {
-            ClusterStorage s1 = new ClusterStorage(name, 1e12);
-            // The bandwidth within a data center
-            s1.setBandwidth("in", Parameters.getBandwidthInDC());
-            // The bandwidth to the source site
-            s1.setBandwidth("between", Parameters.getBandwidthBetweenDC());
-            storageList.add(s1);
-            datacenter = new WorkflowDatacenter(name, characteristics, new VmAllocationPolicySimple(hostList),
-                    storageList, 0);
-            // for(Host host : hostList){
-            // host.setDatacenter(datacenter);
-            // }
-            // List<Storage> returnedStorageList = datacenter.getStorageList();
-            // for (Storage storage : returnedStorageList) {
-            // System.out.println(storage);
-            // }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return datacenter;
-    }
 
     /**
      * 根据输入的VM数量，创建对应数量的虚拟机
@@ -470,42 +349,47 @@ public class ESRWHCalibration {
         // later
         LinkedList<CondorVM> list = new LinkedList<>();
 
-        // VM Parameters
+        // VM Parameters 没什么用
         long size = 1000; // image size (MB)
         int ram = 512; // vm memory (MB)
-        int mips = 1000;
+        double mips = 1000.0;
         long bw = 1000;
         int pesNumber = 1; // number of cpus
         String vmm = "Xen"; // VMM name
 
-        // create VMs
-        // CondorVM[] vm = new CondorVM[vms];
         CondorVM vm = null;
 
-        CondorVM fastestVm = null;
+
         double fastestMips = 0.0;
         for (int i = 0; i < vms; i++) {
             // 生成随机的虚拟机处理速度
             Random random = new Random();
-            int ratio = 1 + random.nextInt(5);
+            int j = random.nextInt(3);
 
-            int generatedMips = (int) (ratio * mips / 5);
+            // 设置每台物理机的功率
+            double powers[] = {62.0,25.0,95.0};
+            double generatedMips[] = {3000, 2000, 5200};
 
-            // 设置每台虚拟机的功率
-            double power = generatedMips / 4;
+            Double frequency1[] = {1.0, 1.8/2.0, 1.6/2.0, 1.4/2.0, 1.2/2.0, 1.0/2.0, 0.8/2.0};
+            Double frequency2[] = {1.0, 1.6/1.8 ,1.4/1.8, 1.2/1.8, 1.0/1.8, 0.8/1.8};
+            Double frequency3[] = {1.0, 2.4/2.6, 2.2/2.6, 2.0/2.6, 1.8/2.6, 1.0/2.6};
+
+            List<List<Double>> frequencyList = new ArrayList<>();
+            frequencyList.add(Arrays.asList(frequency1));
+            frequencyList.add(Arrays.asList(frequency2));
+            frequencyList.add(Arrays.asList(frequency3));
+
             // System.out.println("比例：" + ratio + " 速度：" + generatedMips + "
             // 功率为：" + power);
-            vm = new CondorVM(i, userId, generatedMips, pesNumber, ram, bw, size, power * 10, vmm + i,
+            vm = new CondorVM(i, userId, generatedMips[j], pesNumber, ram, bw, size, powers[j], vmm + i,
                     new CloudletSchedulerSpaceShared());
-            if (generatedMips > fastestMips) {
-                fastestMips = generatedMips;
-                fastestVm = vm;
-            }
+
+            vm.setFrequency(frequencyList.get(j));
+
             list.add(vm);
         }
 
-        // 将最快的虚拟机保存下来
-        Parameters.setFastestVM(fastestVm);
+
         return list;
     }
 

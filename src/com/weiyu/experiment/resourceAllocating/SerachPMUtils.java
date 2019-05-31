@@ -94,11 +94,24 @@ public class SerachPMUtils {
 
                 //计算EFT
                 double T = TaskAssigningUtils.calculateComputationTime(task,vm);
-
                 double max = 0.0;
                 for(Task parent: task.getParentList()){
                     //Transmission Time
-                    double transmissionTime = TaskAssigningUtils.calculateDataTransmissionTimeBetweenParentAndChild(parent, task, Parameters.getBandwidthInDC());
+
+                    double transmissionTime = 0.0;
+
+                    //判断parent是不是在这个待分配的物理机上
+                    ArrayList<Event> ll = allocatedMap.get(vm);
+                    if(ll == null || ll.isEmpty()){
+                        transmissionTime = TaskAssigningUtils.calculateDataTransmissionTimeBetweenParentAndChild(parent, task, Parameters.getBandwidthInDC());
+                    }
+                    for(Event event : ll){
+                        if(event.task.equals(parent)){
+                            transmissionTime = 0.0;
+                            break;
+                        }
+                    }
+
                     if(AFT.get(parent) + transmissionTime > max)
                         max = AFT.get(parent) + transmissionTime;
                 }

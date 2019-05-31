@@ -178,7 +178,7 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
 
 //        calculateNormalEFT();
 
-        Parameters.setComputationTimesList(computationTimesList);
+        Parameters.setComputationTimes(computationTimes);
         Parameters.setGeneratedDataTransmissionTimesList(generatedDataTransmissionTimesList);
 
 
@@ -293,7 +293,7 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
         this.computationTimes = computationTimes;
     }
 
-    public Map<Task, Map<Task, Double>> getGeneratedDataTransmissionTimes() {
+    public Map<Task, Map<Task, Double>>  getGeneratedDataTransmissionTimes() {
         return generatedDataTransmissionTimes;
     }
 
