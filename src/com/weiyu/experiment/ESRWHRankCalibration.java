@@ -1,3 +1,8 @@
+package com.weiyu.experiment;
+
+/**
+ * Created by why on 2019/6/12.
+ */
 /**
  * Copyright 2012-2013 University Of Southern California
  *
@@ -13,7 +18,26 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.weiyu.experiment;
+
+import com.weiyu.experiment.domain.SimulationResult;
+import com.weiyu.experiment.utils.Print;
+import org.cloudbus.cloudsim.CloudletSchedulerSpaceShared;
+import org.cloudbus.cloudsim.Log;
+import org.cloudbus.cloudsim.core.CloudSim;
+import org.workflowsim.CondorVM;
+import org.workflowsim.Job;
+import org.workflowsim.WorkflowEngine;
+import org.workflowsim.WorkflowPlanner;
+import org.workflowsim.utils.ClusteringParameters;
+import org.workflowsim.utils.OverheadParameters;
+import org.workflowsim.utils.Parameters;
+import org.workflowsim.utils.ReplicaCatalog;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -68,13 +92,13 @@ import com.weiyu.experiment.utils.VMAllocationPolicyImpl;
  * @author Wei Yu
  *
  */
-public class ESRWHCalibration {
+public class ESRWHRankCalibration {
 
     public static void main(String[] args) throws Exception {
 
         // 数据存放路径
         List<String> daxPaths = null;
-        String prefixPath = "F:/Experiment/CyberShake/";
+        String prefixPath = "F:/Experiment/Montage/";
 
 //      int[] workflowNumbers = { 20, 40};
         int[] taskNumbers = {50, 100, 150, 200, 250};
@@ -100,7 +124,7 @@ public class ESRWHCalibration {
             for (int k = 0; k < 10; k++) {
                 //实例存放路径
                 daxPaths = new ArrayList<>();
-                String xmlPath = prefixPath + "CyberShake" + "_" + taskNumbers[i] + "_" + k + ".xml";
+                String xmlPath = prefixPath + "Montage" + "_" + taskNumbers[i] + "_" + k + ".xml";
                 daxPaths.add(xmlPath);
 
 
@@ -131,43 +155,58 @@ public class ESRWHCalibration {
 //                    Parameters.randomWsts.add(randomWst);
 //                }
 
+
+
                 List<SimulationResult> results = new ArrayList<>();
 
                 // 针对不同的参数进行实验
-                for (int m = 0; m <allocatingMethods.length; m++) {
-                    List<SimulationResult> simulationResults = new ArrayList<>();
+                for(int a = 0; a < deadlinelevels.length; a++){
+                    for(int b = 0; b < reliabilityLevels.length; b++){
 
-                    for (int l = 0; l < rankMethods.length; l++) {
 
-                        SimulationResult result = new SimulationResult();
-                        long beginTime = System.currentTimeMillis();
-                        // 调用仿真函数
-                        doSimulations(daxPaths, rankMethods[l], allocatingMethods[m], deadlinelevels[0], reliabilityLevels[0]);
-                        long currentTime = System.currentTimeMillis();
 
-                        // 秒为单位
-                        long runtime = currentTime - beginTime ;
+                        for (int m = 0; m <allocatingMethods.length; m++) {
+//                            List<SimulationResult> simulationResults = new ArrayList<>();
+
+                            for (int l = 0; l < rankMethods.length; l++) {
+
+                                SimulationResult result = new SimulationResult();
+                                long beginTime = System.currentTimeMillis();
+                                // 调用仿真函数
+                                doSimulations(daxPaths, rankMethods[l], allocatingMethods[m], deadlinelevels[a], reliabilityLevels[b]);
+                                long currentTime = System.currentTimeMillis();
+
+                                // 秒为单位
+                                long runtime = currentTime - beginTime ;
 //                        result.setWorkflowNumber(workflowNumbers[i]);
-                        result.setTaskNumber(taskNumbers[i]);
-                        result.setInstanceNumber(k);
+                                result.setTaskNumber(taskNumbers[i]);
+                                result.setInstanceNumber(k);
 //						result.setRepeatTime(o);
-                        result.setRankMethod(rankMethods[l].toString());
-                        result.setAllocatingMethod(allocatingMethods[m].toString());
-                        result.setDeadlinelevel(deadlinelevels[0].toString());
-                        result.setReliabilityLevel(reliabilityLevels[0].toString());
-                        result.setTotalEnergy(Parameters.getTotalEnergy());
-                        result.setRuntime(runtime);
-                        simulationResults.add(result);
-                    }
+                                result.setRankMethod(rankMethods[l].toString());
+                                result.setAllocatingMethod(allocatingMethods[m].toString());
+                                result.setDeadlinelevel(deadlinelevels[0].toString());
+                                result.setReliabilityLevel(reliabilityLevels[0].toString());
+                                result.setTotalEnergy(Parameters.getTotalEnergy());
+                                result.setRuntime(runtime);
+                                results.add(result);
+//                                simulationResults.add(result);
+                            }
 
-                    // 求出工作流应用数量跟任务数量的组合下的各参数的RPD值
-                    calculateRPD(simulationResults);
-                    for(SimulationResult simulationResult : simulationResults){
-                        results.add(simulationResult);
+                            // 求出工作流应用数量跟任务数量的组合下的各参数的RPD值
+//                            calculateRPD(simulationResults);
+//                            for(SimulationResult simulationResult : simulationResults){
+//                                results.add(simulationResult);
+//                            }
+                        }
+
+
+
                     }
                 }
-
+                // 求出工作流应用数量跟任务数量的组合下的各参数的RPD值
+                calculateRPD(results);
                 exportToTxt(results);
+
             }
             // }
             // }
@@ -185,7 +224,7 @@ public class ESRWHCalibration {
      * @throws IOException
      */
     private static void exportToTxt(List<SimulationResult> results) throws IOException {
-        String filePath = "F:/Experiment/Montage_results_20190530.txt";
+        String filePath = "F:/Experiment/ESRWH_RankCalibration_20190530.txt";
         File file = new File(filePath);
         if (!file.exists()) {
             file.createNewFile();// 不存在则创建
@@ -234,8 +273,8 @@ public class ESRWHCalibration {
      * @param reliabilityLevel
      * @throws Exception
      */
-    protected static void doSimulations(List<String> daxPaths, RankMethod rankMethod, Parameters.AllocatingMethod allocatingMethod,
-                                        DeadlineLevel deadlinelevel, Parameters.ReliabilityLevel reliabilityLevel) throws Exception {
+    protected static void doSimulations(List<String> daxPaths, Parameters.RankMethod rankMethod, Parameters.AllocatingMethod allocatingMethod,
+                                        Parameters.DeadlineLevel deadlinelevel, Parameters.ReliabilityLevel reliabilityLevel) throws Exception {
         Parameters.SchedulingAlgorithm sch_method = Parameters.SchedulingAlgorithm.INVALID;
         Parameters.PlanningAlgorithm pln_method = Parameters.PlanningAlgorithm.ESRWH;
         ReplicaCatalog.FileSystem file_system = ReplicaCatalog.FileSystem.LOCAL;
@@ -402,5 +441,3 @@ public class ESRWHCalibration {
     }
 
 }
-
-

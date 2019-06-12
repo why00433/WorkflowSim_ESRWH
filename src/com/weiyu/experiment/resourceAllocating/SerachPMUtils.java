@@ -23,13 +23,17 @@ public class SerachPMUtils {
     protected double totalEnergy = 0.0;
 
     //记录任务分配后的每个物理机所有的运行时间段
-    protected Map<CondorVM, ArrayList<Event>> allocatedMap = new HashMap<>();
+    protected Map<CondorVM, ArrayList<Event>> allocatedMap = null;
 
     //记录每个任务的可靠性
-    protected Map<Task,Double> reliaMap = new HashMap<>();
+    public Map<Task,Double> reliaMap = null;
 
     public SerachPMUtils(ESRWHAlgorithm planner) {
+
         this.planner = planner;
+        allocatedMap = new HashMap<>();
+        reliaMap = new HashMap<>();
+
     }
 
     public double searchPM(Parameters.AllocatingMethod allocatingMethod, Map<Task, Double> subdeadlines){
@@ -104,11 +108,12 @@ public class SerachPMUtils {
                     ArrayList<Event> ll = allocatedMap.get(vm);
                     if(ll == null || ll.isEmpty()){
                         transmissionTime = TaskAssigningUtils.calculateDataTransmissionTimeBetweenParentAndChild(parent, task, Parameters.getBandwidthInDC());
-                    }
-                    for(Event event : ll){
-                        if(event.task.equals(parent)){
-                            transmissionTime = 0.0;
-                            break;
+                    }else{
+                        for(Event event : ll){
+                            if(event.task.equals(parent)){
+                                transmissionTime = 0.0;
+                                break;
+                            }
                         }
                     }
 
@@ -117,7 +122,7 @@ public class SerachPMUtils {
                 }
                 EST[i][j] = Math.max(max,avail[j]);
                 EFT[i][j] = EST[i][j] + T;
-                EFTMap.put(EFT[i][j], i);
+                EFTMap.put(EFT[i][j], j);
 
                 R[i][j] = Math.exp(-lamda * T);
 
@@ -258,19 +263,24 @@ public class SerachPMUtils {
             CondorVM m = iter.next();
             List<Event> list = allocatedMap.get(m);
 
+            if(list == null || list.isEmpty())
+                continue;
+
             for(Event event : list){
                 double subdead = subdeadlines.get(event.task);
                 double R = 0.0;
 
                 if(event.finish < subdead){
-                    double f = (subdead - event.start)/(event.finish - event.start);
+                    double f = (event.finish - event.start)/(subdead - event.start);
                     List<Double> frequencyTable = m.getFrequency();
                     double frequencyMin = frequencyTable.get(frequencyTable.size()-1);
                     double frequency = f;
                     for(double f1 : frequencyTable){
 
-                        double relia = reliaMap.get(event.task);
-                        R = calculateRelia(relia,event.finish - event.start, frequency, frequencyMin);
+                        double relia = 0.0;
+                        if(reliaMap.get(event.task) != null)
+                            relia = reliaMap.get(event.task);
+                        R = calculateRelia(relia,event.finish - event.start, f1, frequencyMin);
 
                         //可靠性约束
                         if(R < target)
@@ -304,7 +314,7 @@ public class SerachPMUtils {
         //错误到达率
         double lamda = 10e-6;
 
-        double lamdaFrequency = lamda*Math.pow(10.0, 4.0*(1.0-frequency)/(1.0-frequency));
+        double lamdaFrequency = lamda*Math.pow(10.0, 4.0*(1.0-frequency)/(1.0-frequencyMin));
         double rf = Math.exp(-lamdaFrequency*T/frequency);
 
         relia = 1-(1-relia)/(1-Math.exp(-lamda * T))*(1-rf);

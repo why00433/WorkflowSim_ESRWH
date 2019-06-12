@@ -125,6 +125,8 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
         computationTimesList = new ArrayList<>();
         originalDataTransmissionTimesList = new ArrayList<>();
         generatedDataTransmissionTimesList = new ArrayList<>();
+        generatedDataTransmissionTimes = new HashMap<>();
+        computationTimes = new HashMap<>();
         // computationCosts = new HashMap<>();
         // computationTimes = new HashMap<>();
         // generatedDataTransmissionTimes = new HashMap<>();
@@ -222,7 +224,7 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
         int sand = Parameters.getDeadlineLevel().value;
 
         //用CyberShake截止期要设置的宽松一些
-        double ratio = (double) sand / 2;
+        double ratio = (double) sand * 0.2;
 
         //用Montage截止期可以设置稍微紧一些
 //				 double ratio = (double) sand / 10;
@@ -235,6 +237,7 @@ public class ESRWHAlgorithm extends BasePlanningAlgorithm {
         Map<Task, Double> eftsForSubdeadline = rheft.getEftsForSubdeadline();
         Map<Task, Double> subdeadlines = calculateSubdeadlines(ranks, eftsForSubdeadline, SL );
 
+        
         // 第四步：分配资源
         double totalEnergy = 0.0;
         SerachPMUtils serachPMUtils = new SerachPMUtils(this);

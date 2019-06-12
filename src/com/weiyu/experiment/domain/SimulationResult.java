@@ -253,8 +253,7 @@ public class SimulationResult {
 
 	@Override
 	public String toString() {
-		return workflowNumber 
-				+ "\t" + taskNumber 
+		return  taskNumber
 				+ "\t" + instanceNumber 
 //				+ "\t" + repeatTime
 				+ "\t" + rankMethod

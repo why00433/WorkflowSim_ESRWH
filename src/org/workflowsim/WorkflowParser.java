@@ -136,7 +136,7 @@ public final class WorkflowParser {
     public void parse() {
         if (this.daxPath != null) {
             taskList = parseXmlFile(this.daxPath);
-            Parameters.setTaskList(taskList);
+            Parameters. setTaskList(taskList);
             setTaskList(taskList);
         } else if (this.daxPaths != null) {
         	List<Task> taskList = null;

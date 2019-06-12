@@ -70,7 +70,7 @@ public class RHEFT {
             Map<Double ,Integer> EFTMap = new TreeMap<>();
 
 
-            //计算可靠性  
+            //计算可靠性
             double lamda = 10e-6;
             double relia = 0.0;
 
@@ -93,20 +93,22 @@ public class RHEFT {
                     ArrayList<Task> ll = allocatedMap.get(j);
                     if(ll == null || ll.isEmpty()){
                         transmissionTime = TaskAssigningUtils.calculateDataTransmissionTimeBetweenParentAndChild(parent, task, Parameters.getBandwidthInDC());
-                    }
-                    for(Task task1 : ll){
-                        if(task1.equals(parent)){
-                            transmissionTime = 0.0;
-                            break;
+                    }else{
+                        for(Task task1 : ll){
+                            if(task1.equals(parent)){
+                                transmissionTime = 0.0;
+                                break;
+                            }
                         }
                     }
+
 
                     if(AFT.get(parent) + transmissionTime > max)
                         max = AFT.get(parent) + transmissionTime;
                 }
                 EST[i][j] = Math.max(max,avail[j]);
                 EFT[i][j] = EST[i][j] + T;
-                EFTMap.put(EFT[i][j], i);
+                EFTMap.put(EFT[i][j], j);
 
 
                 R[i][j] = Math.exp(-lamda * T);

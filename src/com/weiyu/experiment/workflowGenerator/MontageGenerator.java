@@ -15,7 +15,7 @@ import java.util.Random;
 public class MontageGenerator {
     public static void main(String[] arg) throws Exception {
 
-        int[] taskNumbers = { 25, 50, 100, 150, 200};
+        int[] taskNumbers = { 50, 100, 150, 200, 250};
 
 //		int[] workflowNumbers = { 20, 40, 60, 80, 100 };
 // 		int[] taskNumbers = { 20, 40, 60, 80};
