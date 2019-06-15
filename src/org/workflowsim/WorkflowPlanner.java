@@ -18,7 +18,7 @@ package org.workflowsim;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.weiyu.experiment.ESRWHAlgorithm;
+import com.weiyu.experiment.*;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Log;
@@ -32,8 +32,6 @@ import org.workflowsim.planning.HEFTPlanningAlgorithm;
 import org.workflowsim.planning.RandomPlanningAlgorithm;
 import org.workflowsim.utils.Parameters;
 import org.workflowsim.utils.Parameters.PlanningAlgorithm;
-
-import com.weiyu.experiment.EECEPlanningAlgorithm;
 
 /**
  * WorkflowPlanner supports dynamic planning. In the future we will have global
@@ -214,6 +212,15 @@ public final class WorkflowPlanner extends DatacenterBroker {
                 break;
             case ESRWH:
                 planner = new ESRWHAlgorithm();
+                break;
+            case HEFTAdapted:
+                planner = new HEFTAdapted();
+                break;
+            case QFEC:
+                planner = new QFEC();
+                break;
+            case EESAdapted:
+                planner = new EESAdapted();
                 break;
             default:
                 planner = null;

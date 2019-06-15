@@ -68,7 +68,7 @@ public class TaskAssigningUtils {
 
 		double totalTransmissionTime = 0.0;
 		for (FileItem parentFile : parentFiles) {
-			if (parentFile.getType() != Parameters.FileType.OUTPUT) {
+			if (parentFile.getType() != FileType.OUTPUT) {
 				continue;
 			}
 
@@ -78,8 +78,8 @@ public class TaskAssigningUtils {
 					double childSize = childFile.getSize();
 					// 如果在同一数据中心，则用数据中心内的带宽
 					totalTransmissionTime += (childSize * 8 / bandwidthSpeed);
+					break;
 				}
-				break;
 			}
 		}
 		// acc in MB, averageBandwidth in Mb/s

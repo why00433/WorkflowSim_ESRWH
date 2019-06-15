@@ -91,7 +91,7 @@ public class Parameters {
      * 
      */
     public enum PlanningAlgorithm{
-        INVALID, RANDOM, HEFT, DHEFT, EECE, ESRWH
+        INVALID, RANDOM, HEFT, DHEFT, EECE, ESRWH, HEFTAdapted, QFEC, EESAdapted
     }
     
     /**
@@ -399,6 +399,7 @@ public class Parameters {
     	computationTimesList = null;
     	originalDataTransmissionTimesList = null;
     	generatedDataTransmissionTimesList = null;
+    	totalEnergy = 0.0;
 
     }
     

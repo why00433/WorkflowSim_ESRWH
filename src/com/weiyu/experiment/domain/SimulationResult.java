@@ -47,7 +47,8 @@ public class SimulationResult {
 	private String deadlinelevel;
 	
 	private String vndMethod;
-	
+
+	private String experimentAlgorithm;
 	
 	/**
 	 * VND中kmax的大小
@@ -80,6 +81,7 @@ public class SimulationResult {
 	private double rpdAfterVND;
 
 	private double rpd;
+
 
 	/**
 	 * 工作流调度总能耗
@@ -251,6 +253,15 @@ public class SimulationResult {
 		this.rpd = rpd;
 	}
 
+
+	public String getExperimentAlgorithm() {
+		return experimentAlgorithm;
+	}
+
+	public void setExperimentAlgorithm(String experimentAlgorithm) {
+		this.experimentAlgorithm = experimentAlgorithm;
+	}
+
 	@Override
 	public String toString() {
 		return  taskNumber
@@ -260,6 +271,18 @@ public class SimulationResult {
 				+ "\t" + allocatingMethod
 				+ "\t" + deadlinelevel 
 				+ "\t" + reliabilityLevel
+				+ "\t" + totalEnergy
+				+ "\t" + rpd
+				+ "\t" + runtime;
+	}
+
+	public String toString2() {
+		return  taskNumber
+				+ "\t" + instanceNumber
+//				+ "\t" + repeatTime
+				+ "\t" + deadlinelevel
+				+ "\t" + reliabilityLevel
+				+ "\t" + experimentAlgorithm
 				+ "\t" + totalEnergy
 				+ "\t" + rpd
 				+ "\t" + runtime;

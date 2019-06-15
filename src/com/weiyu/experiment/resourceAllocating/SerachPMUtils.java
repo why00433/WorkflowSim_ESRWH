@@ -124,7 +124,7 @@ public class SerachPMUtils {
                 EFT[i][j] = EST[i][j] + T;
                 EFTMap.put(EFT[i][j], j);
 
-                R[i][j] = Math.exp(-lamda * T);
+                R[i][j] = Math.exp(-lamda * T/3600);
 
                 double energy = vm.getPower() * T;
 
@@ -315,9 +315,9 @@ public class SerachPMUtils {
         double lamda = 10e-6;
 
         double lamdaFrequency = lamda*Math.pow(10.0, 4.0*(1.0-frequency)/(1.0-frequencyMin));
-        double rf = Math.exp(-lamdaFrequency*T/frequency);
+        double rf = Math.exp(-lamdaFrequency*T/3600/frequency);
 
-        relia = 1-(1-relia)/(1-Math.exp(-lamda * T))*(1-rf);
+        relia = 1-(1-relia)/(1-Math.exp(-lamda * T/3600))*(1-rf);
 
         return relia;
     }

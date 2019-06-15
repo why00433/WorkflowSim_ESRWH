@@ -98,7 +98,7 @@ public class ESRWHRankCalibration {
 
         // 数据存放路径
         List<String> daxPaths = null;
-        String prefixPath = "F:/Experiment/Montage/";
+        String prefixPath = "F:/Experiment/CyberShake/";
 
 //      int[] workflowNumbers = { 20, 40};
         int[] taskNumbers = {50, 100, 150, 200, 250};
@@ -124,7 +124,7 @@ public class ESRWHRankCalibration {
             for (int k = 0; k < 10; k++) {
                 //实例存放路径
                 daxPaths = new ArrayList<>();
-                String xmlPath = prefixPath + "Montage" + "_" + taskNumbers[i] + "_" + k + ".xml";
+                String xmlPath = prefixPath + "CyberShake" + "_" + taskNumbers[i] + "_" + k + ".xml";
                 daxPaths.add(xmlPath);
 
 
@@ -155,20 +155,16 @@ public class ESRWHRankCalibration {
 //                    Parameters.randomWsts.add(randomWst);
 //                }
 
-
-
                 List<SimulationResult> results = new ArrayList<>();
 
                 // 针对不同的参数进行实验
                 for(int a = 0; a < deadlinelevels.length; a++){
-                    for(int b = 0; b < reliabilityLevels.length; b++){
-
-
-
+                    for(int b = 0; b < 1; b++){
                         for (int m = 0; m <allocatingMethods.length; m++) {
-//                            List<SimulationResult> simulationResults = new ArrayList<>();
 
-                            for (int l = 0; l < rankMethods.length; l++) {
+                            List<SimulationResult> simulationResults = new ArrayList<>();
+
+                                for (int l = 0; l < rankMethods.length; l++) {
 
                                 SimulationResult result = new SimulationResult();
                                 long beginTime = System.currentTimeMillis();
@@ -184,27 +180,23 @@ public class ESRWHRankCalibration {
 //						result.setRepeatTime(o);
                                 result.setRankMethod(rankMethods[l].toString());
                                 result.setAllocatingMethod(allocatingMethods[m].toString());
-                                result.setDeadlinelevel(deadlinelevels[0].toString());
-                                result.setReliabilityLevel(reliabilityLevels[0].toString());
+                                result.setDeadlinelevel(deadlinelevels[a].toString());
+                                result.setReliabilityLevel(reliabilityLevels[b].toString());
                                 result.setTotalEnergy(Parameters.getTotalEnergy());
                                 result.setRuntime(runtime);
+                                simulationResults.add(result);
                                 results.add(result);
-//                                simulationResults.add(result);
                             }
 
                             // 求出工作流应用数量跟任务数量的组合下的各参数的RPD值
-//                            calculateRPD(simulationResults);
-//                            for(SimulationResult simulationResult : simulationResults){
-//                                results.add(simulationResult);
-//                            }
+                            calculateRPD(simulationResults);
+
+
                         }
-
-
-
                     }
                 }
+
                 // 求出工作流应用数量跟任务数量的组合下的各参数的RPD值
-                calculateRPD(results);
                 exportToTxt(results);
 
             }
@@ -224,7 +216,7 @@ public class ESRWHRankCalibration {
      * @throws IOException
      */
     private static void exportToTxt(List<SimulationResult> results) throws IOException {
-        String filePath = "F:/Experiment/ESRWH_RankCalibration_20190530.txt";
+        String filePath = "F:/Experiment/ESRWH_RankCalibration_20190602.txt";
         File file = new File(filePath);
         if (!file.exists()) {
             file.createNewFile();// 不存在则创建
@@ -374,7 +366,7 @@ public class ESRWHRankCalibration {
 
 
         // 设置一个统一的数据中心内的PM进行传输的带宽
-        double interBandwidth = 1.0e7;
+        double interBandwidth = 1.0e8;
         Parameters.setBandwidthInDC(interBandwidth);
 
         CloudSim.startSimulation();

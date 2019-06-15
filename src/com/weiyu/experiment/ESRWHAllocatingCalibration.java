@@ -169,7 +169,7 @@ public class ESRWHAllocatingCalibration {
                                 SimulationResult result = new SimulationResult();
                                 long beginTime = System.currentTimeMillis();
                                 // 调用仿真函数
-                                doSimulations(daxPaths, rankMethods[l], allocatingMethods[m], deadlinelevels[a], reliabilityLevels[1]);
+                                doSimulations(daxPaths, rankMethods[l], allocatingMethods[m], deadlinelevels[a], reliabilityLevels[b]);
                                 long currentTime = System.currentTimeMillis();
 
                                 // 秒为单位
@@ -215,7 +215,7 @@ public class ESRWHAllocatingCalibration {
      * @throws IOException
      */
     private static void exportToTxt(List<SimulationResult> results) throws IOException {
-        String filePath = "F:/Experiment/ESRWH_AllocatingCalibration_20190530.txt";
+        String filePath = "F:/Experiment/ESRWH_AllocatingCalibration_20190602.txt";
         File file = new File(filePath);
         if (!file.exists()) {
             file.createNewFile();// 不存在则创建
@@ -365,7 +365,7 @@ public class ESRWHAllocatingCalibration {
 
 
         // 设置一个统一的数据中心内的PM进行传输的带宽
-        double interBandwidth = 1.0e7;
+        double interBandwidth = 1.0e8;
         Parameters.setBandwidthInDC(interBandwidth);
 
         CloudSim.startSimulation();
