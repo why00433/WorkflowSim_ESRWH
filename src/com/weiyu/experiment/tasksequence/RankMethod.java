@@ -9,14 +9,10 @@ import org.cloudbus.cloudsim.Host;
 import org.workflowsim.CondorVM;
 import org.workflowsim.FileItem;
 import org.workflowsim.Task;
-import org.workflowsim.planning.BasePlanningAlgorithm;
 import org.workflowsim.utils.Parameters;
 import org.workflowsim.utils.Parameters.FileType;
 
-import com.weiyu.experiment.EECEPlanningAlgorithm;
-import com.weiyu.experiment.domain.DownwardTaskRank;
 import com.weiyu.experiment.domain.TaskRank;
-import com.weiyu.experiment.domain.UpwardTaskRank;
 
 public abstract class RankMethod {
 	/**

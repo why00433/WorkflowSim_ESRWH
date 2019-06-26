@@ -86,10 +86,9 @@ import com.weiyu.experiment.utils.VMAllocationPolicyImpl;
 
 /**
  * 最小化变频资源能耗的工作流实例进行参数校正
- * 1）用VND的算法和不用VND算法之间的进行对比。 2）在不同的截止期情况下进行比较
- * 3）在不同的工作流实例规模的情况下进行比较 4）在不同的任务数量规模性进行比较
+ * 1）用不同资源分配方法比较
  *
- * @author Wei Yu
+ * @author Haoyang Wang
  *
  */
 public class ESRWHAllocatingCalibration {
@@ -98,7 +97,7 @@ public class ESRWHAllocatingCalibration {
 
         // 数据存放路径
         List<String> daxPaths = null;
-        String prefixPath = "F:/Experiment/Montage/";
+        String prefixPath = "F:/Experiment/Random/";
 
 //      int[] workflowNumbers = { 20, 40};
         int[] taskNumbers = {50, 100, 150, 200, 250};
@@ -124,7 +123,7 @@ public class ESRWHAllocatingCalibration {
             for (int k = 0; k < 10; k++) {
                 //实例存放路径
                 daxPaths = new ArrayList<>();
-                String xmlPath = prefixPath + "Montage" + "_" + taskNumbers[i] + "_" + k + ".xml";
+                String xmlPath = prefixPath + "Random" + "_" + taskNumbers[i] + "_" + k + ".xml";
                 daxPaths.add(xmlPath);
 
 

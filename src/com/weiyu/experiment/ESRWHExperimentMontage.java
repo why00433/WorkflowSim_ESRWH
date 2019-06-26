@@ -60,7 +60,7 @@ import com.weiyu.experiment.utils.Print;
 import com.weiyu.experiment.utils.VMAllocationPolicyImpl;
 
 /**
- * 在CyberShake标准科学工作流实例下进行ESRWH算法对比
+ * 在Montage标准科学工作流实例下进行ESRWH算法对比
  * 工作流实例进行参数校正
  * 1）对HEFT、QFEC、EES、算法之间的进行对比。
  * 2）在不同的截止期情况下进行比较
@@ -122,41 +122,39 @@ public class ESRWHExperimentMontage {
 
                 Parameters.clear();
 
-
-
-
-
                 // 针对不同的参数进行实验
                 for(int a = 0; a < deadlinelevels.length; a++){
                     for(int b = 0; b < reliabilityLevels.length; b++){
+                        //重复做5次实验
+                        for(int l = 0; l < 5; l++){
+                            List<SimulationResult> results = new ArrayList<>();
 
-                        List<SimulationResult> results = new ArrayList<>();
+                            for(int j = 0; j < experimentAlgorithms.length; j++){
+                                SimulationResult result = new SimulationResult();
 
-                        for(int j = 0; j < experimentAlgorithms.length; j++){
-                            SimulationResult result = new SimulationResult();
+                                long beginTime = System.currentTimeMillis();
+                                // 调用仿真函数
+                                doSimulations(daxPaths, rankMethods[1], allocatingMethods[0], deadlinelevels[a], reliabilityLevels[b], experimentAlgorithms[j]);
+                                long currentTime = System.currentTimeMillis();
 
-                            long beginTime = System.currentTimeMillis();
-                            // 调用仿真函数
-                            doSimulations(daxPaths, rankMethods[0], allocatingMethods[0], deadlinelevels[a], reliabilityLevels[b], experimentAlgorithms[j]);
-                            long currentTime = System.currentTimeMillis();
-
-                            // 秒为单位
-                            long runtime = currentTime - beginTime ;
+                                // 秒为单位
+                                long runtime = currentTime - beginTime ;
 //                        result.setWorkflowNumber(workflowNumbers[i]);
-                            result.setTaskNumber(taskNumbers[i]);
-                            result.setInstanceNumber(k);
+                                result.setTaskNumber(taskNumbers[i]);
+                                result.setInstanceNumber(k);
 //						result.setRepeatTime(o);
-                            result.setDeadlinelevel(deadlinelevels[a].toString());
-                            result.setReliabilityLevel(reliabilityLevels[b].toString());
-                            result.setExperimentAlgorithm(experimentAlgorithms[j].toString());
-                            result.setTotalEnergy(Parameters.getTotalEnergy());
-                            result.setRuntime(runtime);
-                            results.add(result);
-                        }
+                                result.setDeadlinelevel(deadlinelevels[a].toString());
+                                result.setReliabilityLevel(reliabilityLevels[b].toString());
+                                result.setExperimentAlgorithm(experimentAlgorithms[j].toString());
+                                result.setTotalEnergy(Parameters.getTotalEnergy());
+                                result.setRuntime(runtime);
+                                results.add(result);
+                            }
 
-                        // 求出工作流应用数量跟任务数量的组合下的各参数的RPD值
-                        calculateRPD(results);
-                        exportToTxt(results);
+                            // 求出工作流应用数量跟任务数量的组合下的各参数的RPD值
+                            calculateRPD(results);
+                            exportToTxt(results);
+                        }
 
                     }
 
@@ -182,7 +180,7 @@ public class ESRWHExperimentMontage {
      * @throws IOException
      */
     private static void exportToTxt(List<SimulationResult> results) throws IOException {
-        String filePath = "F:/Experiment/ESRWH_Montage_20190602.txt";
+        String filePath = "F:/Experiment/ESRWH_Montage_20190617.txt";
         File file = new File(filePath);
         if (!file.exists()) {
             file.createNewFile();// 不存在则创建

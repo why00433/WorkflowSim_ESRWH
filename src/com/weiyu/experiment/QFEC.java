@@ -210,13 +210,13 @@ public class QFEC extends ESRWHAlgorithm {
 
         // 第三步：进行子截止时间划分
         Map<Task, Double> eftsForSubdeadline = rheft.getEftsForSubdeadline();
-        Map<Task, Double> subdeadlines = calculateSubdeadlines(ranks, eftsForSubdeadline, SL );
+        Map<Task, Double> subdeadlines = calculateQFECSubdeadlines(ranks, eftsForSubdeadline, SL );
 
 
         // 第四步：分配资源
         double totalEnergy = 0.0;
         SerachPMUtils serachPMUtils = new SerachPMUtils(this);
-        totalEnergy = serachPMUtils.searchPM(Parameters.getAllocatingMethod(), subdeadlines);
+        totalEnergy = serachPMUtils.searchPM(Parameters.AllocatingMethod.VS1, subdeadlines);
 
         System.out.println("总能耗为：" + totalEnergy);
 
@@ -231,29 +231,25 @@ public class QFEC extends ESRWHAlgorithm {
     /**
      * 设置每个任务的子截止时间，这时候需要假设将任务分配到最快的物理机上去
      */
-    private Map<Task, Double> calculateSubdeadlines(List<TaskRank> ranks, Map<Task, Double> eftsForSubdeadline, double SL) {
+    private Map<Task, Double> calculateQFECSubdeadlines(List<TaskRank> ranks, Map<Task, Double> eftsForSubdeadline, double SL) {
         Map<Task, Double> subdeadlines = new HashMap<>();
         // 计算每个任务的最早开始时间、最早完成时间
         double deadline = Parameters.getDeadline();
         double DS = deadline - SL;
         double subdealine = 0.0;
 
-        int maximalDepth = 1;
-        for (TaskRank rank : ranks){
-            Task task = rank.getTask();
-            if(task.getDepth() >maximalDepth)
-                maximalDepth = task.getDepth();
-        }
+
 
         for (TaskRank rank : ranks) {
             Task task = rank.getTask();
             // 将工作流松弛时间跟当前任务执行时间成比例的方式分配给每个任务
-            subdealine = eftsForSubdeadline.get(task) + DS * task.getDepth() / maximalDepth;
+            subdealine = eftsForSubdeadline.get(task) + DS;
             subdeadlines.put(task, subdealine);
         }
 
         return subdeadlines;
     }
+
 
 
 

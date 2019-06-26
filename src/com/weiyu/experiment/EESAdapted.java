@@ -185,34 +185,8 @@ public class EESAdapted extends ESRWHAlgorithm {
 
 
         // 算法第一步：任务排序
-        if (Parameters.RankMethod.UPWARDRANK == Parameters.getRankMethod()) {
-            // upward rank的计算方式
-            rankMethod = new UpwardRankMethod(this);
-            ranks = rankMethod.calculateRanks();
-        } else if (Parameters.RankMethod.DOWNWARDRANK == Parameters.getRankMethod()) {
-            // downward rank的计算方式
-            rankMethod = new DownwardRankMethod(this);
-            ranks = rankMethod.calculateRanks();
-        } else if (Parameters.RankMethod.HybridRank == Parameters.getRankMethod()) {
-            // hybrid rank的计算方式
-            ranks = new ArrayList<>();
-            RankMethod upwardRankMethod = new UpwardRankMethod(this);
-            List<TaskRank> upwardRanks = upwardRankMethod.calculateRanks();
-            Map<Task, Double> upwardRankValues = upwardRankMethod.getRank();
 
-            RankMethod downwardRankMethod = new DownwardRankMethod(this);
-            List<TaskRank> downwardRanks = downwardRankMethod.calculateRanks();
-            Map<Task, Double> downwardRankValues = downwardRankMethod.getRank();
-
-            double lastRankValue = downwardRanks.get(downwardRanks.size() - 1).getRank();
-            for (Task task : taskList) {
-                double rankValue = upwardRankValues.get(task) + lastRankValue - downwardRankValues.get(task);
-                // 降序排列
-                ranks.add(new TaskRank(task, rankValue, 1));
-            }
-            Collections.sort(ranks);
-        }
-
+        ranks = rankMethod.calculateRanks();
 
         // 算法第二步：计算最短路径
         RHEFT rheft = new RHEFT(this);
@@ -223,11 +197,9 @@ public class EESAdapted extends ESRWHAlgorithm {
         // 原始的通过设置不同等级的截止期来设置任务截止时间
         int sand = Parameters.getDeadlineLevel().value;
 
-        //用CyberShake截止期要设置的宽松一些
+        //截止期
         double ratio = (double) sand * 0.2;
 
-        //用Montage截止期可以设置稍微紧一些
-//				 double ratio = (double) sand / 10;
         double wst = ratio * SL;
         deadline = SL + wst;
 
@@ -241,14 +213,16 @@ public class EESAdapted extends ESRWHAlgorithm {
         // 第四步：分配资源
         double totalEnergy = 0.0;
         SerachPMUtils serachPMUtils = new SerachPMUtils(this);
-        totalEnergy = serachPMUtils.searchPM(Parameters.AllocatingMethod.VS2, subdeadlines);
+        //EES分配策略
+        totalEnergy = serachPMUtils.searchEESPM(Parameters.AllocatingMethod.VS1, subdeadlines);
 
 
         System.out.println("总能耗为：" + totalEnergy);
 
-        // 第五步：DVFS调频
+        // 第五步：DVFS调频,因为区别于ESRWH，即增加副本优先分配副本就不调频了
+        totalEnergy = serachPMUtils.afterEESDVFS(subdeadlines);
+        // 增加的副本需要调频减少能耗
         totalEnergy = serachPMUtils.afterDVFS(subdeadlines);
-
         System.out.println("DVFS后总能耗为：" + totalEnergy);
 
         Parameters.setTotalEnergy(totalEnergy);

@@ -62,10 +62,9 @@ import com.weiyu.experiment.utils.VMAllocationPolicyImpl;
 
 /**
  * 最小化变频资源能耗的工作流实例进行参数校正
- * 1）用VND的算法和不用VND算法之间的进行对比。 2）在不同的截止期情况下进行比较
- * 3）在不同的工作流实例规模的情况下进行比较 4）在不同的任务数量规模性进行比较
+ * 1）后续在此基础上改进
  *
- * @author Wei Yu
+ * @author Haoyang Wang
  *
  */
 public class ESRWHCalibration {

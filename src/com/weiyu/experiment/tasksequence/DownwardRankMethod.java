@@ -3,15 +3,10 @@ package com.weiyu.experiment.tasksequence;
 import java.util.*;
 
 import com.weiyu.experiment.ESRWHAlgorithm;
-import com.weiyu.experiment.domain.SortedVM;
-import com.weiyu.experiment.taskassigning.TaskAssigningUtils;
-import org.cloudbus.cloudsim.lists.VmList;
-import org.workflowsim.CondorVM;
 import org.workflowsim.Task;
 import org.workflowsim.WorkflowDatacenter;
 import org.workflowsim.utils.Parameters;
 
-import com.weiyu.experiment.EECEPlanningAlgorithm;
 import com.weiyu.experiment.domain.TaskRank;
 
 public class DownwardRankMethod extends RankMethod{

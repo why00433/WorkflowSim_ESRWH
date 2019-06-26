@@ -207,9 +207,6 @@ public final class WorkflowPlanner extends DatacenterBroker {
             case DHEFT:
                 planner = new DHEFTPlanningAlgorithm();
                 break;
-            case EECE:
-                planner = new EECEPlanningAlgorithm();
-                break;
             case ESRWH:
                 planner = new ESRWHAlgorithm();
                 break;
